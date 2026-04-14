@@ -1,0 +1,33 @@
+{
+  "mission": {
+    "students_impacted": 16000,
+    "population_engaged": 97000,
+    "schools_reached": 140,
+    "student_penetration_pct": 16.0,
+    "population_pct": 12.5,
+    "schools_pct": 37.0
+  },
+  "financial": {
+    "earned_revenue_pct": 44.0,
+    "program_spending_pct": 76.0,
+    "admin_spending_pct": 24.0,
+    "diversification_score": 81,
+    "revenue_sources": [
+      { "name": "Admissions and Program Fees", "pct": 44 },
+      { "name": "Contributions", "pct": 26 },
+      { "name": "Grants", "pct": 18 },
+      { "name": "Sponsors and Other", "pct": 12 }
+    ]
+  },
+  "sustainability": {
+    "non_local_participation_pct": 50.0,
+    "outreach_engagement_pct": 10.0,
+    "strategic_partnerships": 23
+  },
+  "indexes": {
+    "mission_impact_index": 84,
+    "financial_strength_index": 79,
+    "sustainability_index": 71,
+    "overall_health_score": 78
+  }
+}
