@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>North Dakota State Science Center - Board Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <style>
+        :root {
+            --blue: #003c71;
+            --blue2: #0b5f9e;
+            --light: #eef4f9;
+            --card: #fff;
+            --line: #d8e2ee;
+            --text: #1f2d3d;
+            --muted: #607085;
+            --green: #2f7d32;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--light);
+            color: var(--text);
+        }
+
+        .header {
+            background: var(--blue);
+            color: #fff;
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+            .header h1 {
+                margin: 0;
+                font-size: 20px;
+            }
+
+        .subtitle {
+            font-size: 13px;
+            opacity: .9;
+        }
+
+        .page {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 14px;
+        }
+
+        .card,
+        .score-card,
+        .section-card,
+        .lever-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 1px 2px rgba(0,0,0,.04);
+        }
+
+        .story-card {
+            border-left: 6px solid var(--blue);
+            margin-bottom: 12px;
+        }
+
+            .story-card h2 {
+                margin: 0 0 6px;
+                font-size: 18px;
+            }
+
+            .story-card p {
+                margin: 0;
+                color: var(--muted);
+                line-height: 1.4;
+            }
+
+        .score-row {
+            display: grid;
+            grid-template-columns: 1.2fr repeat(4,1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .overall {
+            background: linear-gradient(135deg,var(--blue),var(--blue2));
+            color: #fff;
+        }
+
+        .score-label {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .overall .score-label,
+        .overall .score-note {
+            color: #eaf3fb;
+        }
+
+        .score-value {
+            font-size: 34px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-note {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .meter {
+            height: 8px;
+            background: #e7edf3;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--green);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 12px;
+        }
+
+        .section-card h3 {
+            margin: 0 0 8px;
+            font-size: 17px;
+        }
+
+        .section-question {
+            margin: 0 0 12px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .kpi-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: 46px 1fr auto;
+            gap: 10px;
+            align-items: center;
+            border-top: 1px solid #eef2f6;
+            padding-top: 8px;
+        }
+
+            .kpi-row:first-child {
+                border-top: 0;
+                padding-top: 0;
+            }
+
+        .kpi-icon {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #eef4f9;
+            color: var(--blue);
+            font-size: 17px;
+        }
+
+        .kpi-title {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .kpi-sub {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .kpi-value {
+            font-size: 20px;
+            font-weight: 800;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .callout {
+            margin-top: 12px;
+            background: #f7fbff;
+            border: 1px solid #d7e9f8;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .trend-card {
+            margin-top: 12px;
+        }
+
+        .footer-note {
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .kpi-row-expanded {
+            grid-template-columns: 46px 1fr auto;
+            align-items: start;
+        }
+
+        .kpi-body {
+            min-width: 0;
+        }
+
+        .kpi-compare {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+            .kpi-compare > div {
+                background: #f7fbff;
+                border: 1px solid #d7e9f8;
+                border-radius: 8px;
+                padding: 6px 8px;
+            }
+
+        .compare-label {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 2px;
+        }
+
+        .compare-value {
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .score-card {
+            cursor: pointer;
+        }
+
+            .score-card:hover {
+                border-color: #9fc7e8;
+                box-shadow: 0 2px 6px rgba(0,60,113,.14);
+            }
+
+        .detail-card {
+            margin-bottom: 12px;
+        }
+
+        .detail-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+            .detail-head h3 {
+                margin: 0 0 4px;
+                font-size: 17px;
+            }
+
+        .detail-sub {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .detail-close {
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 8px;
+            font-size: 20px;
+            line-height: 1;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+
+        .detail-chart-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 12px;
+        }
+
+        .detail-mini-chart {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            background: #f8fbfe;
+        }
+
+        .detail-mini-chart-title {
+            font-weight: 800;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+
+        .score-card.active-index {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(0,60,113,.16);
+        }
+
+            .score-card.active-index .score-label {
+                color: var(--blue);
+            }
+
+        .briefing-card {
+            margin-bottom: 12px;
+        }
+
+        .briefing-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+            .briefing-head h3 {
+                margin: 0 0 4px;
+                font-size: 17px;
+            }
+
+        .briefing-sub {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .briefing-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 10px;
+        }
+
+        .briefing-item {
+            border: 1px solid var(--line);
+            background: #f8fbfe;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .briefing-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .briefing-category {
+            font-weight: 800;
+            color: var(--blue);
+        }
+
+        .briefing-title {
+            font-weight: 800;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .briefing-details {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.35;
+        }
+
+        .briefing-archive-toggle {
+            margin-top: 10px;
+        }
+
+            .briefing-archive-toggle button {
+                border: 1px solid var(--line);
+                background: #fff;
+                border-radius: 8px;
+                padding: 6px 10px;
+                cursor: pointer;
+            }
+
+        .briefing-archive {
+            margin-top: 10px;
+            border-top: 1px solid var(--line);
+            padding-top: 10px;
+        }
+
+        .archive-row {
+            display: grid;
+            grid-template-columns: 90px 130px 1fr;
+            gap: 10px;
+            border-top: 1px solid #eef2f6;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+
+            .archive-row:first-child {
+                border-top: 0;
+            }
+
+        .dashboard-qr {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: #fff;
+            font-weight: 700;
+        }
+
+            .dashboard-qr img {
+                width: 80px;
+                height: 80px;
+                border: 1px solid rgba(255,255,255,.45);
+                border-radius: 8px;
+                padding: 4px;
+                background: #fff;
+            }
+
+        @media(max-width:900px) {
+            .briefing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .archive-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:900px) {
+            .detail-chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:650px) {
+            .kpi-row-expanded {
+                grid-template-columns: 38px 1fr;
+            }
+
+                .kpi-row-expanded .kpi-value {
+                    grid-column: 2;
+                    text-align: left;
+                }
+
+            .kpi-compare {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:1100px) {
+            .score-row {
+                grid-template-columns: repeat(2,1fr)
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        @media(max-width:650px) {
+            .score-row {
+                grid-template-columns: 1fr
+            }
+
+            .header {
+                flex-direction: column
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .brief-panel.active {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                z-index: 9999;
+                overflow-y: auto;
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,.25);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div>
+            <h1>North Dakota State Science Center - Board Dashboard</h1>
+            <div class="subtitle">Mission Impact · Financial Strength · Sustainability</div>
+        </div>
+        <div class="subtitle" style="display:none;" id="lastUpdated">Loading...</div>
+        
+        
+        <div class="dashboard-qr">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=https://fpsconnect.fargo.k12.nd.us/gateway-board-dashboard/gateway_board_dashboardv4.html"
+                    alt="QR code">
+                
+        </div>
+        
+        
+        
+    </div>
+
+    <div class="page">
+
+        <div style="display:none;" class="card story-card">
+            <h2>Board-Level Story</h2>
+            <p id="boardStory">Loading dashboard story...</p>
+        </div>
+
+        <div class="score-row">
+            <div class="score-card overall" id="scoreCardSystem" onclick="showIndexDetail('system')">
+                <div class="score-label">Overall Organizational Health</div>
+                <div class="score-value" id="overallScore">--</div>
+                <div class="meter"><div class="meter-fill" id="overallMeter"></div></div>
+                <div class="score-note">Composite of mission, finance, and sustainability indicators.</div>
+            </div>
+
+
+            <div class="score-card" id="scoreCardMission" onclick="showIndexDetail('mission')">
+                <div class="score-label">Mission Impact Index</div>
+                <div class="score-value" id="missionIndex">--</div>
+                <div class="meter"><div class="meter-fill" id="missionMeter"></div></div>
+                <div class="score-note">Are we achieving what we exist to do?</div>
+            </div>
+
+            <div class="score-card" id="scoreCardFinancial" onclick="showIndexDetail('financial')">
+                <div class="score-label">Financial Strength Index</div>
+                <div class="score-value" id="financialIndex">--</div>
+                <div class="meter"><div class="meter-fill" id="financialMeter"></div></div>
+                <div class="score-note">Are we operating like a healthy organization?</div>
+            </div>
+
+            <div class="score-card" id="scoreCardSustainability" onclick="showIndexDetail('sustainability')">
+                <div class="score-label">Sustainability Index</div>
+                <div class="score-value" id="sustainabilityIndex">--</div>
+                <div class="meter"><div class="meter-fill" id="sustainabilityMeter"></div></div>
+                <div class="score-note">Will we remain relevant and grow?</div>
+            </div>
+
+            <div class="score-card" id="scoreCardBriefing" onclick="toggleBoardBriefing()">
+                <div class="score-label">Board Briefing</div>
+                <div class="score-value" style="font-size:24px;" id="briefingCount">--</div>
+                <div class="score-note">Recognition, opportunities, partnerships, and watch items.</div>
+            </div>
+        </div>
+        <div class="card detail-card" id="indexDetailCard" style="display:none;">
+            <div class="detail-head">
+                <div>
+                    <h3 id="detailTitle">Detail</h3>
+                    <div class="detail-sub" id="detailSub">Trend lines for supporting metrics.</div>
+                </div>
+
+                <button type="button" class="detail-close" onclick="hideIndexDetail()">×</button>
+            </div>
+
+            <div class="detail-chart-grid" id="detailChartGrid"></div>
+        </div>
+        <div class="card briefing-card" id="boardBriefingCard" style="display:none;">
+            <div class="briefing-head">
+                <div>
+                    <h3><i class="fa-solid fa-clipboard-list"></i> Board Briefing</h3>
+                    <div class="briefing-sub">Recent qualitative updates and strategic signals.</div>
+                </div>
+
+                <button type="button" class="detail-close" onclick="hideBoardBriefing()">×</button>
+            </div>
+
+            <div class="briefing-grid" id="briefingGrid"></div>
+
+            <div class="briefing-archive-toggle">
+                <button type="button" onclick="toggleBriefingArchive()">View Archive</button>
+            </div>
+
+            <div class="briefing-archive" id="briefingArchive" style="display:none;"></div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="section-card">
+                <h3><i class="fa-solid fa-bullseye"></i> Mission Impact</h3>
+                <p class="section-question">Are we achieving what we exist to do?</p>
+                <div class="kpi-list" id="missionKpis"></div>
+                <div class="callout" id="missionCallout"></div>
+            </div>
+
+            <div class="section-card">
+                <h3><i class="fa-solid fa-chart-line"></i> Financial Strength</h3>
+                <p class="section-question">Are we operating like a healthy organization?</p>
+                <div class="kpi-list" id="financialKpis"></div>
+                <div class="callout" id="financialCallout"></div>
+            </div>
+
+            <div class="section-card">
+                <h3><i class="fa-solid fa-seedling"></i> Sustainability</h3>
+                <p class="section-question">Will we remain relevant and grow?</p>
+                <div class="kpi-list" id="sustainabilityKpis"></div>
+                <div class="callout" id="sustainabilityCallout"></div>
+            </div>
+        </div>
+
+        <div class="card trend-card">
+            <h3 style="margin-top:0;"><i class="fa-solid fa-chart-simple"></i> Trend</h3>
+            <canvas id="trendChart" height="90"></canvas>
+        </div>
+
+        <div class="footer-note">
+            Data source: Published spreadsheet CSV
+        </div>
+
+    </div>
+
+    <script>
+       
+
+        const DATA_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ09ifnXQdtwhv4f08yq-h4HBQmVKU4LAMw1EHUvcFcDQneuqNhanhDEPRuBxHjMyMdaRI6sMO0c_-/pub?gid=699231373&single=true&output=csv';
+
+        const NARRATIVE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ09ifnXQdtwhv4f08yq-h4HBQmVKU4LAMw1EHUvcFcDQneuqNhanhDEPRuBxHjMyMdaRI6sMO0c_-/pub?gid=552903790&single=true&output=csv';
+
+        const BOARD_BRIEFING_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ09ifnXQdtwhv4f08yq-h4HBQmVKU4LAMw1EHUvcFcDQneuqNhanhDEPRuBxHjMyMdaRI6sMO0c_-/pub?gid=1752322111&single=true&output=csv';
+
+        let dashboardRows = [];
+        let dashboardGrouped = {};
+        let detailCharts = [];
+
+        let briefingRows = [];
+
+            function csvFetch(url){
+      return new Promise((resolve, reject) => {
+                Papa.parse(url, {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: results => resolve(results.data),
+                    error: err => reject(err)
+                });
+      });
+}
+
+            function escapeHtml(value){
+      return String(value ?? '')
+            .replaceAll('&','&amp;')
+            .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+            .replaceAll('"','&quot;')
+            .replaceAll("'",'&#039;');
+}
+
+            function setText(id, value){
+                document.getElementById(id).textContent = value ?? '';
+}
+
+            function setMeter(id, value){
+      const safe = Math.max(0, Math.min(100, Number(value || 0)));
+            document.getElementById(id).style.width = safe + '%';
+}
+
+            function num(value){
+      return Number(String(value ?? '').replace('%','').replaceAll(',',''));
+}
+
+        function displayValue(row) {
+
+            if (!row) return '--';
+
+            const value = row.value;
+
+            if (value === null || value === undefined || value === '') {
+                return '--';
+            }
+
+            switch (String(row.unit || '').toLowerCase()) {
+
+                case 'percent':
+                    return value + '%';
+
+                case 'score':
+                    return value + '/100';
+
+                case 'number':
+                    return Number(value).toLocaleString();
+
+                case 'currency':
+                    return '$' + Number(value).toLocaleString();
+
+                default:
+                    return value;
+            }
+        }
+
+        function displayGoal(row) {
+
+            if (!row) return '--';
+
+            const goal = row.goal;
+
+            if (goal === null || goal === undefined || goal === '') {
+                return '--';
+            }
+
+            switch (String(row.unit || '').toLowerCase()) {
+
+                case 'percent':
+                    return goal + '%';
+
+                case 'score':
+                    return goal + '/100';
+
+                case 'number':
+                    return Number(goal).toLocaleString();
+
+                case 'currency':
+                    return '$' + Number(goal).toLocaleString();
+
+                default:
+                    return goal;
+            }
+        }
+
+            function getNarrative(rows, key){
+      const row = rows.find(r => String(r.key || '').trim() === key);
+            return row ? row.value : '';
+}
+
+            function latestByMetric(rows){
+      const grouped = { };
+
+      rows.forEach(r => {
+        const key = String(r.metric_key || '').trim();
+            if (!key) return;
+
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(r);
+      });
+
+      Object.keys(grouped).forEach(key => {
+                grouped[key].sort((a, b) =>
+                    String(a.snapshot_date).localeCompare(String(b.snapshot_date))
+                );
+      });
+
+            return grouped;
+}
+
+            function getCurrentMetric(grouped, key){
+      const list = grouped[key] || [];
+            return list[list.length - 1] || { };
+}
+
+            function getPreviousMetric(grouped, key){
+      const list = grouped[key] || [];
+            return list[list.length - 2] || { };
+}
+
+        function calcChange(current, previous, unit) {
+            const c = num(current);
+            const p = num(previous);
+
+            if (isNaN(c) || isNaN(p)) return '--';
+
+            const diff = c - p;
+            const sign = diff > 0 ? '+' : '';
+
+            if (unit === 'percent') return `${sign}${diff.toFixed(0)} pts`;
+
+            return `${sign}${diff.toLocaleString()}`;
+        }
+
+            function calcGap(current, goal, format){
+      const c = num(current);
+            const g = num(goal);
+
+            if (isNaN(c) || isNaN(g)) return '--';
+
+            const diff = c - g;
+      const sign = diff > 0 ? '+' : '';
+
+            if (format === 'percent') return `${sign}${diff.toFixed(1)} pts`;
+            if (format === 'score') return `${sign}${diff.toFixed(1)}`;
+
+            return `${sign}${diff.toLocaleString()}`;
+}
+
+            function renderTopScores(grouped){
+      const overall = getCurrentMetric(grouped, 'overall_health_score');
+            const mission = getCurrentMetric(grouped, 'mission_index');
+            const financial = getCurrentMetric(grouped, 'financial_index');
+            const sustainability = getCurrentMetric(grouped, 'sustainability_index');
+
+                setText('overallScore', displayValue(overall));
+                setText('missionIndex', displayValue(mission));
+                setText('financialIndex', displayValue(financial));
+                setText('sustainabilityIndex', displayValue(sustainability));
+
+            setMeter('overallMeter', overall.value);
+            setMeter('missionMeter', mission.value);
+            setMeter('financialMeter', financial.value);
+            setMeter('sustainabilityMeter', sustainability.value);
+
+           
+}
+
+        function getKpiRows(rows, section) {
+            const latestRowsByMetric = {};
+
+            rows.forEach(r => {
+                const key = String(r.metric_key || '').trim();
+                if (!key) return;
+
+                if (String(r.section || '').toLowerCase() !== section) return;
+                if (String(r.show_on_dashboard || '').toUpperCase() !== 'Y') return;
+                if (String(r.metric_key || '').includes('_index')) return;
+                if (r.metric_key === 'overall_health_score') return;
+
+                const existing = latestRowsByMetric[key];
+
+                if (
+                    !existing ||
+                    String(r.snapshot_date).localeCompare(String(existing.snapshot_date)) > 0
+                ) {
+                    latestRowsByMetric[key] = r;
+                }
+            });
+
+            return Object.values(latestRowsByMetric)
+                .sort((a, b) => Number(a.sort_order || 99) - Number(b.sort_order || 99));
+        }
+
+            function renderKpis(containerId, rows, grouped){
+                document.getElementById(containerId).innerHTML = rows.map(k => {
+                    const key = k.metric_key;
+                    const current = getCurrentMetric(grouped, key);
+                    const previous = getPreviousMetric(grouped, key);
+
+                    const currentDisplay = displayValue(current);
+                    const previousDisplay = displayValue(previous);
+                    const goalDisplay = displayGoal(current);
+
+                    return `
+          <div class="kpi-row kpi-row-expanded">
+            <div class="kpi-icon">
+              <i class="fa-solid ${escapeHtml(k.icon || 'fa-circle-info')}"></i>
+            </div>
+
+            <div class="kpi-body">
+              <div class="kpi-title">${escapeHtml(k.metric_label || '')}</div>
+              <div class="kpi-sub">${escapeHtml(k.sub || '')}</div>
+
+              <div class="kpi-compare">
+                <div>
+                  <div class="compare-label">Previous</div>
+                  <div class="compare-value">${escapeHtml(previousDisplay)}</div>
+                </div>
+                <div>
+                  <div class="compare-label">Goal</div>
+                  <div class="compare-value">${escapeHtml(goalDisplay)}</div>
+                </div>
+                <div>
+                    <div class="compare-label">Change</div>
+                    <div class="compare-value">
+                    ${escapeHtml(calcChange(current.value, previous.value, current.unit))}
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="kpi-value">${escapeHtml(currentDisplay)}</div>
+          </div>
+        `;
+                }).join('');
+}
+
+            function renderSections(rows, grouped){
+                renderKpis('missionKpis', getKpiRows(rows, 'mission'), grouped);
+            renderKpis('financialKpis', getKpiRows(rows, 'financial'), grouped);
+            renderKpis('sustainabilityKpis', getKpiRows(rows, 'sustainability'), grouped);
+}
+
+            function renderNarrative(rows){
+                setText('boardStory', getNarrative(rows, 'board_story'));
+            setText('missionCallout', getNarrative(rows, 'mission_callout'));
+            setText('financialCallout', getNarrative(rows, 'financial_callout'));
+            setText('sustainabilityCallout', getNarrative(rows, 'sustainability_callout'));
+}
+
+            function renderTrend(rows){
+              const scoreKeys = [
+                    'overall_health_score',
+                    'mission_index',
+                    'financial_index',
+                    'sustainability_index'
+                    ];
+
+                    const dates = [...new Set(
+                    rows
+                  .filter(r => scoreKeys.includes(r.metric_key))
+                  .map(r => r.snapshot_date)
+                    .filter(Boolean)
+                    )].sort();
+
+                    function series(key){
+                return dates.map(d => {
+                  const row = rows.find(r => r.snapshot_date === d && r.metric_key === key);
+                    return row ? num(row.value) : null;
+                });
+              }
+
+                    new Chart(document.getElementById('trendChart'), {
+                        type:'line',
+                    data:{
+                        labels:dates,
+                    datasets:[
+                    {label:'Overall', data:series('overall_health_score'), tension:.25 },
+                    {label:'Mission', data:series('mission_index'), tension:.25 },
+                    {label:'Financial', data:series('financial_index'), tension:.25 },
+                    {label:'Sustainability', data:series('sustainability_index'), tension:.25 }
+                    ]
+                },
+                    options:{
+                        responsive:true,
+                    plugins:{legend:{position:'bottom' } },
+                    scales:{y:{min:0, max:100 } }
+                }
+              });
+            }
+        function destroyDetailCharts() {
+            detailCharts.forEach(chart => chart.destroy());
+            detailCharts = [];
+        }
+
+        function getDetailConfig(section) {
+            const configs = {
+                system: {
+                    title: 'Overall Organizational Health Detail',
+                    sub: 'Trend lines for the major index scores.',
+                    keys: ['overall_health_score', 'mission_index', 'financial_index', 'sustainability_index']
+                },
+                mission: {
+                    title: 'Mission Impact Detail',
+                    sub: 'Trend lines for supporting mission metrics.',
+                    keys: ['students_impacted', 'population_reached', 'schools_reached']
+                },
+                financial: {
+                    title: 'Financial Strength Detail',
+                    sub: 'Trend lines for supporting financial metrics.',
+                    keys: ['earned_revenue_ratio', 'program_spending', 'revenue_diversity']
+                },
+                sustainability: {
+                    title: 'Sustainability Detail',
+                    sub: 'Trend lines for supporting sustainability metrics.',
+                    keys: ['non_local_participation', 'outreach_participation', 'strategic_partnerships']
+                }
+            };
+
+            return configs[section] || configs.mission;
+        }
+
+        function getMetricRows(key) {
+            return dashboardRows
+                .filter(r => String(r.metric_key || '').trim() === key)
+                .sort((a, b) => String(a.snapshot_date).localeCompare(String(b.snapshot_date)));
+        }
+
+        function setActiveIndexCard(section) {
+            document.querySelectorAll('.score-card').forEach(card => {
+                card.classList.remove('active-index');
+            });
+
+            const map = {
+                system: 'scoreCardSystem',
+                mission: 'scoreCardMission',
+                financial: 'scoreCardFinancial',
+                sustainability: 'scoreCardSustainability'
+            };
+
+            const id = map[section];
+
+            if (id && document.getElementById(id)) {
+                document.getElementById(id).classList.add('active-index');
+            }
+        }
+
+        function showIndexDetail(section) {
+            const config = getDetailConfig(section);
+            hideBoardBriefing();
+            setActiveIndexCard(section);
+            const card = document.getElementById('indexDetailCard');
+            const grid = document.getElementById('detailChartGrid');
+
+            destroyDetailCharts();
+
+            document.getElementById('detailTitle').textContent = config.title;
+            document.getElementById('detailSub').textContent = config.sub;
+
+            grid.innerHTML = config.keys.map((key, i) => {
+                const rows = getMetricRows(key);
+                const latest = rows[rows.length - 1] || {};
+                const title = latest.metric_label || key;
+
+                return `
+            <div class="detail-mini-chart">
+                <div class="detail-mini-chart-title">${escapeHtml(title)}</div>
+                <canvas id="detailChart_${i}" height="120"></canvas>
+            </div>
+        `;
+            }).join('');
+
+            card.style.display = 'block';
+
+            config.keys.forEach((key, i) => {
+                const rows = getMetricRows(key);
+                const latest = rows[rows.length - 1] || {};
+                const unit = latest.unit || '';
+
+                const chart = new Chart(document.getElementById(`detailChart_${i}`), {
+                    type: 'line',
+                    data: {
+                        labels: rows.map(r => r.snapshot_date),
+                        datasets: [{
+                            label: latest.metric_label || key,
+                            data: rows.map(r => num(r.value)),
+                            tension: .25
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: {
+                                    callback: function (value) {
+                                        if (unit === 'percent') return value + '%';
+                                        return value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                detailCharts.push(chart);
+            });
+
+            
+        }
+
+        function hideIndexDetail() {
+            destroyDetailCharts();
+            document.getElementById('indexDetailCard').style.display = 'none';
+
+            document.querySelectorAll('.score-card').forEach(card => {
+                card.classList.remove('active-index');
+            });
+        }
+
+        function briefingIcon(category) {
+            const c = String(category || '').toLowerCase();
+
+            if (c.includes('recognition')) return '⭐';
+            if (c.includes('opportunity')) return '🤝';
+            if (c.includes('partnership')) return '🏫';
+            if (c.includes('risk')) return '⚠️';
+            if (c.includes('watch')) return '👀';
+
+            return '•';
+        }
+
+        function getVisibleBriefings() {
+            return briefingRows
+                .filter(r => String(r.show_on_dashboard || '').toUpperCase() === 'Y')
+                .sort((a, b) => String(b.event_date).localeCompare(String(a.event_date)));
+        }
+
+        function renderBriefingSummary() {
+            const rows = getVisibleBriefings();
+            setText('briefingCount', rows.length + ' Items');
+        }
+
+        function renderBoardBriefing() {
+            const rows = getVisibleBriefings().slice(0, 3);
+
+            document.getElementById('briefingGrid').innerHTML = rows.map(r => `
+        <div class="briefing-item">
+            <div class="briefing-meta">
+                <span class="briefing-category">${briefingIcon(r.category)} ${escapeHtml(r.category || '')}</span>
+                <span>${escapeHtml(r.event_date || '')}</span>
+            </div>
+            <div class="briefing-title">${escapeHtml(r.title || '')}</div>
+            <div class="briefing-details">${escapeHtml(r.details || '')}</div>
+        </div>
+    `).join('');
+        }
+
+        function renderBriefingArchive() {
+            const rows = briefingRows
+                .filter(r => r.event_date)
+                .sort((a, b) => String(b.event_date).localeCompare(String(a.event_date)));
+
+            document.getElementById('briefingArchive').innerHTML = rows.map(r => `
+        <div class="archive-row">
+            <div>${escapeHtml(r.event_date || '')}</div>
+            <div>${briefingIcon(r.category)} ${escapeHtml(r.category || '')}</div>
+            <div>
+                <strong>${escapeHtml(r.title || '')}</strong><br>
+                <span style="color:var(--muted);">${escapeHtml(r.details || '')}</span>
+            </div>
+        </div>
+    `).join('');
+        }
+
+        function toggleBoardBriefing() {
+            const card = document.getElementById('boardBriefingCard');
+            hideIndexDetail();
+            hideBoardBriefing();
+
+            document.querySelectorAll('.score-card').forEach(c => c.classList.remove('active-index'));
+            document.getElementById('scoreCardBriefing').classList.add('active-index');
+
+            if (card.style.display === 'none') {
+                renderBoardBriefing();
+                renderBriefingArchive();
+                card.style.display = 'block';
+            } else {
+                hideBoardBriefing();
+            }
+        }
+
+        function hideBoardBriefing() {
+            document.getElementById('boardBriefingCard').style.display = 'none';
+            document.getElementById('briefingArchive').style.display = 'none';
+            document.querySelectorAll('.score-card').forEach(c => c.classList.remove('active-index'));
+        }
+
+        function toggleBriefingArchive() {
+            const archive = document.getElementById('briefingArchive');
+            archive.style.display = archive.style.display === 'none' ? 'block' : 'none';
+        }
+
+
+        Promise.all([
+            csvFetch(DATA_CSV_URL),
+            csvFetch(NARRATIVE_CSV_URL),
+            csvFetch(BOARD_BRIEFING_CSV_URL)
+        ])
+            .then(([dataRows, narrativeRows, boardBriefingRows]) => {
+                const grouped = latestByMetric(dataRows);
+
+                dashboardRows = dataRows;
+                dashboardGrouped = grouped;
+                briefingRows = boardBriefingRows;
+
+                setText('lastUpdated', 'Updated: ' + new Date().toLocaleDateString());
+
+                renderTopScores(grouped);
+                renderSections(dataRows, grouped);
+                renderNarrative(narrativeRows);
+                renderTrend(dataRows);
+                renderBriefingSummary();
+
+            })
+            .catch(err => {
+                console.error(err);
+                setText('lastUpdated', 'Data failed to load');
+            });
+    </script>
+
+</body>
+</html>
