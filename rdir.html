@@ -168,10 +168,20 @@
 
 <body>
 <div class="page-shell">
-    <header class="page-header">
+    <div class="page-header">
         <h1>Retired Staff Directory</h1>
+    
+        <div id="adminLinks" style="display:none;margin-top:8px;">
+            <a id="sheetLink"
+               href="https://docs.google.com/spreadsheets/d/16AlsNIkI1Gc0x8ZcdQPR1qe4Cf5VuCpY1iMb3ZyRw08/edit?gid=1484769212#gid=1484769212"
+               target="_blank"
+               class="contact-link">
+                ✏ Edit Spreadsheet
+            </a>
+        </div>
+    
         <p>Search for former colleagues by name, school, position, city, or retirement year.</p>
-    </header>
+    </div>
 
     <main class="directory-card">
         <section class="filters" aria-label="Directory filters">
@@ -221,6 +231,12 @@
 <script src="https://cdn.datatables.net/responsive/3.0.5/js/dataTables.responsive.min.js"></script>
 
 <script>
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("ftp") === "4143") {
+        document.getElementById("adminLinks").style.display = "block";
+    }
     /*
         REPLACE THIS VALUE with the published CSV URL from Google Sheets.
 
