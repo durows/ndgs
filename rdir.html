@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Retired Staff Directory</title>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.5/css/responsive.dataTables.min.css">
+
+    <style>
+        :root {
+            --brand: #2423ad;
+            --brand-dark: #17167d;
+            --page: #f4f6fb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #64748b;
+            --line: #dbe2ea;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background: var(--page);
+        }
+
+        .page-shell {
+            width: min(1400px, calc(100% - 32px));
+            margin: 28px auto;
+        }
+
+        .page-header {
+            margin-bottom: 18px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 6px;
+            color: var(--brand);
+            font-size: clamp(1.7rem, 3vw, 2.45rem);
+        }
+
+        .page-header p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .directory-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            overflow: hidden;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(220px, 320px));
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+            background: #fafbff;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .filter-group select {
+            min-height: 42px;
+            padding: 8px 10px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: white;
+            font: inherit;
+        }
+
+        .table-wrap {
+            padding: 16px;
+            overflow-x: auto;
+        }
+
+        table.dataTable thead th {
+            background: var(--brand);
+            color: white;
+            border-bottom: 0 !important;
+        }
+
+        table.dataTable tbody tr:hover {
+            background: #f2f4ff;
+        }
+
+        .person-name {
+            font-weight: 700;
+        }
+
+        .contact-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            padding: 5px 9px;
+            border: 1px solid var(--brand);
+            border-radius: 6px;
+            color: var(--brand);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .contact-link:hover {
+            color: white;
+            background: var(--brand);
+        }
+
+        .status-message {
+            padding: 18px;
+            color: var(--muted);
+        }
+
+        .error-message {
+            color: #a61b1b;
+            background: #fff2f2;
+            border: 1px solid #f2caca;
+            border-radius: 8px;
+        }
+
+        .footer-note {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 700px) {
+            .page-shell {
+                width: min(100% - 18px, 1400px);
+                margin: 14px auto;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .table-wrap {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="page-shell">
+    <header class="page-header">
+        <h1>Retired Staff Directory</h1>
+        <p>Search for former colleagues by name, school, position, city, or retirement year.</p>
+    </header>
+
+    <main class="directory-card">
+        <section class="filters" aria-label="Directory filters">
+            <div class="filter-group">
+                <label for="schoolFilter">Former School or Department</label>
+                <select id="schoolFilter">
+                    <option value="">All schools and departments</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="yearFilter">Retirement Year</label>
+                <select id="yearFilter">
+                    <option value="">All retirement years</option>
+                </select>
+            </div>
+        </section>
+
+        <div id="statusMessage" class="status-message">Loading directory...</div>
+
+        <section id="tableSection" class="table-wrap" hidden>
+            <table id="directoryTable" class="display responsive nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Former School / Department</th>
+                        <th>Former Position</th>
+                        <th>Retirement Year</th>
+                        <th>City</th>
+                        <th>Contact</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </main>
+
+    <p class="footer-note">
+        Directory information is supplied voluntarily by retired staff.
+    </p>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
+<script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/3.0.5/js/dataTables.responsive.min.js"></script>
+
+<script>
+    /*
+        REPLACE THIS VALUE with the published CSV URL from Google Sheets.
+
+        Expected column headings in row 1:
+
+        Last Name
+        First Name
+        Preferred Name
+        Former School
+        Former Position
+        Retirement Year
+        City
+        Email
+        Phone
+        Notes
+        Visible
+
+        Visible may be Yes/No. Blank is treated as visible.
+    */
+    const GOOGLE_SHEET_CSV_URL = 'PASTE_GOOGLE_SHEET_CSV_URL_HERE';
+
+    let directoryTable = null;
+
+    document.addEventListener('DOMContentLoaded', loadDirectory);
+
+    async function loadDirectory() {
+        const status = document.getElementById('statusMessage');
+        const tableSection = document.getElementById('tableSection');
+
+        if (GOOGLE_SHEET_CSV_URL.includes('PASTE_GOOGLE')) {
+            showError(
+                'Add your published Google Sheet CSV URL to GOOGLE_SHEET_CSV_URL near the bottom of this file.'
+            );
+            return;
+        }
+
+        try {
+            const response = await fetch(GOOGLE_SHEET_CSV_URL, {
+                cache: 'no-store'
+            });
+
+            if (!response.ok) {
+                throw new Error(`Google Sheet returned HTTP ${response.status}.`);
+            }
+
+            const csvText = await response.text();
+
+            const parsed = Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                transformHeader: header => header.trim()
+            });
+
+            if (parsed.errors.length) {
+                console.warn('CSV parsing warnings:', parsed.errors);
+            }
+
+            const rows = parsed.data
+                .filter(row => isVisible(row))
+                .map(normalizeRow)
+                .filter(row => row.name !== '');
+
+            if (!rows.length) {
+                showError('The published Sheet loaded, but no visible directory entries were found.');
+                return;
+            }
+
+            buildFilters(rows);
+            buildTable(rows);
+
+            status.hidden = true;
+            tableSection.hidden = false;
+        } catch (error) {
+            console.error(error);
+            showError(
+                'The directory could not be loaded. Confirm that the Sheet is published as CSV and that the URL is correct.'
+            );
+        }
+    }
+
+    function isVisible(row) {
+        const value = String(row['Visible'] ?? '').trim().toLowerCase();
+        return value === '' || ['yes', 'y', 'true', '1'].includes(value);
+    }
+
+    function normalizeRow(row) {
+        const firstName = clean(row['First Name']);
+        const lastName = clean(row['Last Name']);
+        const preferredName = clean(row['Preferred Name']);
+
+        const displayFirst = preferredName || firstName;
+        const name = [displayFirst, lastName].filter(Boolean).join(' ');
+
+        return {
+            name,
+            formerSchool: clean(row['Former School']),
+            formerPosition: clean(row['Former Position']),
+            retirementYear: clean(row['Retirement Year']),
+            city: clean(row['City']),
+            email: clean(row['Email']),
+            phone: clean(row['Phone']),
+            notes: clean(row['Notes'])
+        };
+    }
+
+    function clean(value) {
+        return String(value ?? '').trim();
+    }
+
+    function buildFilters(rows) {
+        fillSelect(
+            document.getElementById('schoolFilter'),
+            uniqueSorted(rows.map(row => row.formerSchool).filter(Boolean))
+        );
+
+        fillSelect(
+            document.getElementById('yearFilter'),
+            [...new Set(rows.map(row => row.retirementYear).filter(Boolean))]
+                .sort((a, b) => Number(b) - Number(a))
+        );
+    }
+
+    function fillSelect(select, values) {
+        values.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            select.appendChild(option);
+        });
+    }
+
+    function uniqueSorted(values) {
+        return [...new Set(values)].sort((a, b) =>
+            a.localeCompare(b, undefined, { sensitivity: 'base' })
+        );
+    }
+
+    function buildTable(rows) {
+        directoryTable = new DataTable('#directoryTable', {
+            data: rows,
+            responsive: true,
+            pageLength: 25,
+            order: [[0, 'asc']],
+            columns: [
+                {
+                    data: 'name',
+                    render: data => `<span class="person-name">${escapeHtml(data)}</span>`
+                },
+                {
+                    data: 'formerSchool',
+                    defaultContent: ''
+                },
+                {
+                    data: 'formerPosition',
+                    defaultContent: ''
+                },
+                {
+                    data: 'retirementYear',
+                    defaultContent: ''
+                },
+                {
+                    data: 'city',
+                    defaultContent: ''
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    searchable: true,
+                    render: row => buildContactLinks(row)
+                },
+                {
+                    data: 'notes',
+                    defaultContent: ''
+                }
+            ],
+            columnDefs: [
+                {
+                    targets: [1, 2, 4, 6],
+                    render: data => escapeHtml(data || '')
+                }
+            ],
+            language: {
+                search: 'Search directory:',
+                emptyTable: 'No retired staff match the selected filters.'
+            }
+        });
+
+        DataTable.ext.search.push(function(settings, data) {
+            if (settings.nTable.id !== 'directoryTable') {
+                return true;
+            }
+
+            const selectedSchool = document.getElementById('schoolFilter').value;
+            const selectedYear = document.getElementById('yearFilter').value;
+
+            const school = data[1] || '';
+            const year = data[3] || '';
+
+            return (!selectedSchool || school === selectedSchool)
+                && (!selectedYear || year === selectedYear);
+        });
+
+        document.getElementById('schoolFilter').addEventListener('change', () => {
+            directoryTable.draw();
+        });
+
+        document.getElementById('yearFilter').addEventListener('change', () => {
+            directoryTable.draw();
+        });
+    }
+
+    function buildContactLinks(row) {
+        const links = [];
+
+        if (row.email) {
+            links.push(
+                `<a class="contact-link" href="mailto:${escapeAttribute(row.email)}">Email</a>`
+            );
+        }
+
+        if (row.phone) {
+            const phoneHref = row.phone.replace(/[^\d+]/g, '');
+            links.push(
+                `<a class="contact-link" href="tel:${escapeAttribute(phoneHref)}">Call</a>`
+            );
+        }
+
+        return links.length
+            ? `<div class="contact-links">${links.join('')}</div>`
+            : '';
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function escapeAttribute(value) {
+        return escapeHtml(value);
+    }
+
+    function showError(message) {
+        const status = document.getElementById('statusMessage');
+        status.textContent = message;
+        status.classList.add('error-message');
+        status.hidden = false;
+    }
+</script>
+</body>
+</html>
