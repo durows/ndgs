@@ -294,6 +294,87 @@
             cursor: pointer;
         }
 
+        .index-calculation {
+            margin-bottom: 14px;
+        }
+
+        .calculation-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            border: 1px solid #b8d6ee;
+            border-left: 6px solid var(--blue);
+            border-radius: 10px;
+            background: #f7fbff;
+        }
+
+        .calculation-summary-label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .calculation-summary-value {
+            font-size: 30px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .calculation-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .calculation-item {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 11px;
+            background: #fff;
+        }
+
+        .calculation-item-title {
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .calculation-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 3px 0;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .calculation-line strong {
+            color: var(--text);
+            text-align: right;
+        }
+
+        .calculation-score {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8eef4;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .calculation-score strong {
+            font-size: 22px;
+        }
+
+        .calculation-formula {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
         .detail-chart-grid {
             display: grid;
             grid-template-columns: repeat(3,1fr);
@@ -444,7 +525,8 @@
         }
 
         @media(max-width:900px) {
-            .detail-chart-grid {
+            .detail-chart-grid,
+            .calculation-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -511,7 +593,7 @@
         </div>
         <div class="subtitle" style="display:none;" id="lastUpdated">Loading...</div>
 
-        
+        <div><a href="https://docs.google.com/spreadsheets/d/1xoloIlvpnR_yJNoX-Gwz-IugcsoNuF46cP3YTGFQl0k/edit?gid=1752322111#gid=1752322111" target="_blank">Sheet1</a>.</div>
         
         <div class="dashboard-qr">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=https://durows.github.io/ndgs/connect4.html"
@@ -524,7 +606,7 @@
     </div>
 
     <div class="page">
-<div><a href="https://docs.google.com/spreadsheets/d/18BuRnby6xV4PrZok1Zo8SqeeXlu68E2FWiYAfKsIqlM/edit?gid=1690017656#gid=1690017656" target="_blank">Sheet1</a></div>
+
         <div style="display:none;" class="card story-card">
             <h2>Board-Level Story</h2>
             <p id="boardStory">Loading dashboard story...</p>
@@ -576,6 +658,7 @@
                 <button type="button" class="detail-close" onclick="hideIndexDetail()">×</button>
             </div>
 
+            <div class="index-calculation" id="indexCalculationBreakdown"></div>
             <div class="detail-chart-grid" id="detailChartGrid"></div>
         </div>
         <div class="card briefing-card" id="boardBriefingCard" style="display:none;">
@@ -1104,22 +1187,26 @@
             const configs = {
                 system: {
                     title: 'Overall Organizational Health Detail',
-                    sub: 'Trend lines for the major index scores.',
+                    sub: 'How the score is calculated, followed by trend lines.',
+                    indexKey: 'overall_health_score',
                     keys: ['overall_health_score', 'mission_index', 'financial_index', 'sustainability_index']
                 },
                 mission: {
                     title: 'Mission Impact Detail',
-                    sub: 'Trend lines for supporting mission metrics.',
+                    sub: 'How the score is calculated, followed by supporting metric trends.',
+                    indexKey: 'mission_index',
                     keys: ['students_impacted', 'population_reached', 'schools_reached']
                 },
                 financial: {
                     title: 'Financial Strength Detail',
-                    sub: 'Trend lines for supporting financial metrics.',
+                    sub: 'How the score is calculated, followed by supporting metric trends.',
+                    indexKey: 'financial_index',
                     keys: ['earned_revenue_ratio', 'program_spending', 'revenue_diversity']
                 },
                 sustainability: {
                     title: 'Sustainability Detail',
-                    sub: 'Trend lines for supporting sustainability metrics.',
+                    sub: 'How the score is calculated, followed by supporting metric trends.',
+                    indexKey: 'sustainability_index',
                     keys: ['non_local_participation', 'outreach_participation', 'strategic_partnerships']
                 }
             };
@@ -1152,6 +1239,72 @@
             }
         }
 
+        function ruleTargetDisplay(rule, componentRow) {
+            if (rule.component_type === 'index') return '--';
+            const unit = componentRow?.unit || '';
+            return displayGoal({ goal: rule.target, unit });
+        }
+
+        function renderIndexCalculation(indexKey) {
+            const container = document.getElementById('indexCalculationBreakdown');
+            const rules = indexRules.filter(r => r.index_key === indexKey);
+            const indexRow = getCurrentMetric(dashboardGrouped, indexKey);
+
+            if (!rules.length || !indexRow.snapshot_date) {
+                container.innerHTML = '<div class="callout">No active calculation rules were found for this index.</div>';
+                return;
+            }
+
+            const parts = rules.map(rule => {
+                const componentRow = getCurrentMetric(dashboardGrouped, rule.component_key);
+                const componentScore = rule.component_type === 'index'
+                    ? num(componentRow.value)
+                    : scoreComponent(componentRow.value, rule);
+
+                return { rule, componentRow, componentScore };
+            }).filter(x => Number.isFinite(x.componentScore) && Number.isFinite(x.rule.weight) && x.rule.weight > 0);
+
+            const weightTotal = parts.reduce((sum, x) => sum + x.rule.weight, 0);
+
+            const cards = parts.map(({ rule, componentRow, componentScore }) => {
+                const normalizedWeight = weightTotal ? (rule.weight / weightTotal) * 100 : 0;
+                const contribution = componentScore * normalizedWeight / 100;
+                const label = componentRow.metric_label || rule.component_key;
+                const current = displayValue(componentRow);
+                const target = ruleTargetDisplay(rule, componentRow);
+                const method = rule.component_type === 'index'
+                    ? 'Calculated index score'
+                    : (rule.direction === 'lower' ? 'Lower is better' : 'Higher is better');
+
+                return `
+                    <div class="calculation-item">
+                        <div class="calculation-item-title">${escapeHtml(label)}</div>
+                        <div class="calculation-line"><span>Current</span><strong>${escapeHtml(current)}</strong></div>
+                        ${rule.component_type === 'index' ? '' : `<div class="calculation-line"><span>Goal</span><strong>${escapeHtml(target)}</strong></div>`}
+                        <div class="calculation-line"><span>Weight</span><strong>${normalizedWeight.toFixed(0)}%</strong></div>
+                        <div class="calculation-line"><span>Method</span><strong>${escapeHtml(method)}</strong></div>
+                        <div class="calculation-score">
+                            <span>Component score</span>
+                            <strong>${componentScore.toFixed(1)}</strong>
+                        </div>
+                        <div class="calculation-line"><span>Weighted contribution</span><strong>${contribution.toFixed(1)} pts</strong></div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="calculation-summary">
+                    <div>
+                        <div class="calculation-summary-label">Calculated from ${parts.length} weighted component${parts.length === 1 ? '' : 's'}</div>
+                        <strong>${escapeHtml(indexRow.metric_label || indexKey)}</strong>
+                    </div>
+                    <div class="calculation-summary-value">${escapeHtml(displayValue(indexRow))}</div>
+                </div>
+                <div class="calculation-grid">${cards}</div>
+                <div class="calculation-formula">Index = sum of each component score × its normalized weight. Component scores are capped at 100 when the rule says to cap them.</div>
+            `;
+        }
+
         function showIndexDetail(section) {
             const config = getDetailConfig(section);
             hideBoardBriefing();
@@ -1163,6 +1316,7 @@
 
             document.getElementById('detailTitle').textContent = config.title;
             document.getElementById('detailSub').textContent = config.sub;
+            renderIndexCalculation(config.indexKey);
 
             grid.innerHTML = config.keys.map((key, i) => {
                 const rows = getMetricRows(key);
@@ -1222,6 +1376,7 @@
         function hideIndexDetail() {
             destroyDetailCharts();
             document.getElementById('indexDetailCard').style.display = 'none';
+            document.getElementById('indexCalculationBreakdown').innerHTML = '';
 
             document.querySelectorAll('.score-card').forEach(card => {
                 card.classList.remove('active-index');
