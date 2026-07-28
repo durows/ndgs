@@ -495,11 +495,46 @@
             .archive-row:first-child {
                 border-top: 0;
             }
+.header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
 
+        .sheet-link {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: underline;
+            white-space: nowrap;
+        }
 
-        .header-actions{display:flex;align-items:center;gap:12px}
-        .how-button{border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.12);color:#fff;border-radius:9px;padding:9px 12px;font-weight:700;cursor:pointer}
-        .how-button:hover{background:rgba(255,255,255,.2)}
+        .how-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 1px solid rgba(255,255,255,.65);
+            background: rgba(255,255,255,.14);
+            color: #fff;
+            border-radius: 9px;
+            padding: 9px 12px;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .how-button:hover {
+            background: rgba(255,255,255,.24);
+        }
+
+        @media(max-width:900px) {
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+        }
         .help-drawer-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:19990;display:none}
         .help-drawer-backdrop.open{display:block}
         .help-drawer{position:fixed;top:0;right:-520px;width:500px;max-width:94vw;height:100vh;background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 30px rgba(15,23,42,.2);z-index:20000;transition:right .22s ease;display:flex;flex-direction:column}
@@ -624,18 +659,26 @@
             <h1>North Dakota State Science Center - Board Dashboard</h1>
             <div class="subtitle">Mission Impact · Financial Strength · Sustainability</div>
         </div>
+
         <div class="subtitle" style="display:none;" id="lastUpdated">Loading...</div>
 
-        <div><a href="https://docs.google.com/spreadsheets/d/1xoloIlvpnR_yJNoX-Gwz-IugcsoNuF46cP3YTGFQl0k/edit?gid=1752322111#gid=1752322111" target="_blank">Sheet1</a>.</div>
-        
-        <div class="dashboard-qr">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=https://durows.github.io/ndgs/connect4.html"
-                    alt="QR code">
-                
+        <div class="header-actions">
+            <a class="sheet-link"
+               href="https://docs.google.com/spreadsheets/d/1xoloIlvpnR_yJNoX-Gwz-IugcsoNuF46cP3YTGFQl0k/edit?gid=1752322111#gid=1752322111"
+               target="_blank">
+                Sheet1
+            </a>
+
+            <button type="button" class="how-button" onclick="toggleHelpDrawer()">
+                <i class="fa-solid fa-circle-question"></i>
+                How Calculated
+            </button>
+
+            <div class="dashboard-qr">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=https://durows.github.io/ndgs/connect4.html"
+                     alt="QR code">
+            </div>
         </div>
-        
-        
-        
     </div>
 
 
