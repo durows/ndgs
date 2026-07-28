@@ -495,9 +495,12 @@
             .archive-row:first-child {
                 border-top: 0;
             }
-
-
-        .header-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px}
+.header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
 
         .sheet-link {
             color: #fff;
@@ -507,23 +510,31 @@
             white-space: nowrap;
         }
 
-        @media (max-width: 900px) {
-            .header {
-                align-items: flex-start;
-            }
-
-            .header-actions {
-                flex-wrap: wrap;
-                justify-content: flex-end;
-            }
-
-            .how-button {
-                white-space: nowrap;
-            }
+        .how-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 1px solid rgba(255,255,255,.65);
+            background: rgba(255,255,255,.14);
+            color: #fff;
+            border-radius: 9px;
+            padding: 9px 12px;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+            cursor: pointer;
         }
 
-        .how-button{border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.12);color:#fff;border-radius:9px;padding:9px 12px;font-weight:700;cursor:pointer}
-        .how-button:hover{background:rgba(255,255,255,.2)}
+        .how-button:hover {
+            background: rgba(255,255,255,.24);
+        }
+
+        @media(max-width:900px) {
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+        }
         .help-drawer-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:19990;display:none}
         .help-drawer-backdrop.open{display:block}
         .help-drawer{position:fixed;top:0;right:-520px;width:500px;max-width:94vw;height:100vh;background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 30px rgba(15,23,42,.2);z-index:20000;transition:right .22s ease;display:flex;flex-direction:column}
@@ -638,6 +649,42 @@
                 box-shadow: 0 10px 30px rgba(0,0,0,.25);
             }
         }
+    
+        .how-button {
+            position: fixed;
+            top: 18px;
+            right: 105px;
+            z-index: 21010;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 2px solid #ffffff;
+            background: #f4b400;
+            color: #102a43;
+            border-radius: 9px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+            box-shadow: 0 3px 10px rgba(0,0,0,.25);
+            cursor: pointer;
+        }
+
+        .how-button:hover {
+            background: #ffd45c;
+        }
+
+        @media(max-width:700px) {
+            .how-button {
+                top: 10px;
+                right: 10px;
+            }
+
+            .dashboard-qr {
+                display: none;
+            }
+        }
+
     </style>
 </head>
 
@@ -669,7 +716,9 @@
             </div>
         </div>
     </div>
-<div class="help-drawer-backdrop" id="helpDrawerBackdrop" onclick="closeHelpDrawer()"></div>
+
+
+    <div class="help-drawer-backdrop" id="helpDrawerBackdrop" onclick="closeHelpDrawer()"></div>
     <aside class="help-drawer" id="helpDrawer" aria-hidden="true">
         <div class="help-drawer-head">
             <div>
@@ -836,9 +885,7 @@
 
         // Metric_Dictionary is the single source of truth for goals and metric metadata.
         // Using the sheet name avoids needing another gid.
-        const METRIC_DICTIONARY_CSV_URL =
-            'https://docs.google.com/spreadsheets/d/1xoloIlvpnR_yJNoX-Gwz-IugcsoNuF46cP3YTGFQl0k/gviz/tq?tqx=out:csv&sheet=Metric_Dictionary';
-        
+        const METRIC_DICTIONARY_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTrtLNV_4te6OAfGMwL3BTsywJTlD-380Eomt0Rfy2fs-3KbhJ8Tg9WFIHwtu-rosI3tfAu9HFB2pb3/pub?gid=2031680360&single=true&output=csv';
 
         let dashboardRows = [];
         let dashboardGrouped = {};
