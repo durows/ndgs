@@ -199,6 +199,27 @@
             white-space: nowrap;
         }
 
+        .kpi-value-wrap {
+            text-align: right;
+            min-width: 110px;
+        }
+
+        .kpi-asof {
+            margin-top: 3px;
+            font-size: 10px;
+            font-weight: 400;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .calculation-date {
+            margin-top: 1px;
+            font-size: 10px;
+            font-weight: 400;
+            color: var(--muted);
+            text-align: right;
+        }
+
         .callout {
             margin-top: 12px;
             background: #f7fbff;
@@ -1108,6 +1129,19 @@
             throw new Error(`Unrecognized snapshot date: "${text}"`);
         }
 
+        function formatDashboardDate(value) {
+            const normalized = normalizeSnapshotDate(value);
+            if (!normalized) return 'date unavailable';
+
+            const [year, month, day] = normalized.split('-').map(Number);
+
+            return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
         function validateDuplicateMetricDates(rows) {
             const seen = new Map();
 
@@ -1527,7 +1561,10 @@
                           </div>
                         </div>
             
-                        <div class="kpi-value">${escapeHtml(currentDisplay)}</div>
+                        <div class="kpi-value-wrap">
+                          <div class="kpi-value">${escapeHtml(currentDisplay)}</div>
+                          <div class="kpi-asof">As of ${escapeHtml(formatDashboardDate(current.snapshot_date))}</div>
+                        </div>
                       </div>
                     `;
                             }).join('');
@@ -1730,7 +1767,13 @@
                 return `
                     <div class="calculation-item">
                         <div class="calculation-item-title">${escapeHtml(label)}</div>
-                        <div class="calculation-line"><span>Current</span><strong>${escapeHtml(current)}</strong></div>
+                        <div class="calculation-line">
+                            <span>Current</span>
+                            <strong>
+                                ${escapeHtml(current)}
+                                <div class="calculation-date">${escapeHtml(formatDashboardDate(componentRow.snapshot_date))}</div>
+                            </strong>
+                        </div>
                         ${rule.component_type === 'index' ? '' : `<div class="calculation-line"><span>Goal</span><strong>${escapeHtml(target)}</strong></div>`}
                         <div class="calculation-line"><span>Weight</span><strong>${normalizedWeight.toFixed(0)}%</strong></div>
                         <div class="calculation-line"><span>Method</span><strong>${escapeHtml(method)}</strong></div>
