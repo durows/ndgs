@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -641,11 +640,16 @@
 
         const BOARD_BRIEFING_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ09ifnXQdtwhv4f08yq-h4HBQmVKU4LAMw1EHUvcFcDQneuqNhanhDEPRuBxHjMyMdaRI6sMO0c_-/pub?gid=1752322111&single=true&output=csv';
 
+        const INDEX_RULES_CSV_URL_orig = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ09ifnXQdtwhv4f08yq-h4HBQmVKU4LAMw1EHUvcFcDQneuqNhanhDEPRuBxHjMyMdaRI6sMO0c_-/pub?gid=423820417&single=true&output=csv';
+        const INDEX_RULES_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTrtLNV_4te6OAfGMwL3BTsywJTlD-380Eomt0Rfy2fs-3KbhJ8Tg9WFIHwtu-rosI3tfAu9HFB2pb3/pub?gid=1232213229&single=true&output=csv';
+        
+
         let dashboardRows = [];
         let dashboardGrouped = {};
         let detailCharts = [];
 
         let briefingRows = [];
+        let indexRules = [];
 
             function csvFetch(url){
       return new Promise((resolve, reject) => {
@@ -803,7 +807,158 @@
             return `${sign}${diff.toLocaleString()}`;
 }
 
-            function renderTopScores(grouped){
+            function cleanRuleRows(rows) {
+            return rows
+                .filter(r => String(r.index_key || '').trim())
+                .filter(r => String(r.active || 'Y').trim().toUpperCase() === 'Y')
+                .map(r => ({
+                    index_key: String(r.index_key || '').trim(),
+                    component_key: String(r.component_key || '').trim(),
+                    component_type: String(r.component_type || 'metric').trim().toLowerCase(),
+                    weight: num(r.weight),
+                    direction: String(r.direction || 'higher').trim().toLowerCase(),
+                    scoring_method: String(r.scoring_method || 'target').trim().toLowerCase(),
+                    target: num(r.target),
+                    minimum: num(r.minimum),
+                    maximum: num(r.maximum),
+                    cap_at_100: String(r.cap_at_100 || 'Y').trim().toUpperCase() === 'Y',
+                    sort_order: num(r.sort_order)
+                }))
+                .sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999));
+        }
+
+        function getRowForDate(rows, metricKey, snapshotDate) {
+            return rows.find(r =>
+                String(r.metric_key || '').trim() === metricKey &&
+                String(r.snapshot_date || '').trim() === String(snapshotDate || '').trim()
+            );
+        }
+
+        function scoreComponent(value, rule) {
+            const v = num(value);
+            if (!Number.isFinite(v)) return null;
+
+            let score;
+
+            if (rule.scoring_method === 'direct_score') {
+                score = v;
+            } else if (rule.scoring_method === 'linear') {
+                const min = Number.isFinite(rule.minimum) ? rule.minimum : 0;
+                const max = Number.isFinite(rule.maximum) ? rule.maximum : rule.target;
+                if (!Number.isFinite(max) || max === min) return null;
+
+                score = rule.direction === 'lower'
+                    ? ((max - v) / (max - min)) * 100
+                    : ((v - min) / (max - min)) * 100;
+            } else {
+                const target = rule.target;
+                if (!Number.isFinite(target)) return null;
+
+                if (rule.direction === 'lower') {
+                    if (v <= 0) score = 100;
+                    else score = (target / v) * 100;
+                } else {
+                    if (target === 0) score = v >= 0 ? 100 : 0;
+                    else score = (v / target) * 100;
+                }
+            }
+
+            if (!Number.isFinite(score)) return null;
+            if (rule.cap_at_100) score = Math.min(100, score);
+            return Math.max(0, score);
+        }
+
+        function calculateIndexForDate(indexKey, snapshotDate, rawRows, rules, memo = {}, stack = []) {
+            const memoKey = `${snapshotDate}|${indexKey}`;
+            if (memoKey in memo) return memo[memoKey];
+            if (stack.includes(indexKey)) return null;
+
+            const indexRuleRows = rules.filter(r => r.index_key === indexKey);
+            if (!indexRuleRows.length) return null;
+
+            let weightedTotal = 0;
+            let weightTotal = 0;
+
+            indexRuleRows.forEach(rule => {
+                let componentScore = null;
+
+                if (rule.component_type === 'index') {
+                    componentScore = calculateIndexForDate(
+                        rule.component_key,
+                        snapshotDate,
+                        rawRows,
+                        rules,
+                        memo,
+                        [...stack, indexKey]
+                    );
+                } else {
+                    const row = getRowForDate(rawRows, rule.component_key, snapshotDate);
+                    if (row) componentScore = scoreComponent(row.value, rule);
+                }
+
+                if (componentScore === null || !Number.isFinite(rule.weight) || rule.weight <= 0) return;
+                weightedTotal += componentScore * rule.weight;
+                weightTotal += rule.weight;
+            });
+
+            memo[memoKey] = weightTotal ? weightedTotal / weightTotal : null;
+            return memo[memoKey];
+        }
+
+        function indexMetadata(key) {
+            const metadata = {
+                overall_health_score: {
+                    section: 'system', metric_label: 'Overall Organizational Health',
+                    unit: 'score', icon: 'fa-gauge-high', sort_order: 1,
+                    show_on_dashboard: 'Y', goal: 85,
+                    sub: 'Composite of mission, finance, and sustainability indicators.'
+                },
+                mission_index: {
+                    section: 'system', metric_label: 'Mission Impact Index',
+                    unit: 'score', icon: 'fa-bullseye', sort_order: 2,
+                    show_on_dashboard: 'Y', goal: 88,
+                    sub: 'Are we achieving what we exist to do?'
+                },
+                financial_index: {
+                    section: 'system', metric_label: 'Financial Strength Index',
+                    unit: 'score', icon: 'fa-chart-line', sort_order: 3,
+                    show_on_dashboard: 'Y', goal: 82,
+                    sub: 'Are we operating like a healthy organization?'
+                },
+                sustainability_index: {
+                    section: 'system', metric_label: 'Sustainability Index',
+                    unit: 'score', icon: 'fa-seedling', sort_order: 4,
+                    show_on_dashboard: 'Y', goal: 80,
+                    sub: 'Will we remain relevant and grow?'
+                }
+            };
+            return metadata[key] || {};
+        }
+
+        function buildCalculatedIndexRows(rawRows, rules) {
+            const indexKeys = [...new Set(rules.map(r => r.index_key))];
+            const dates = [...new Set(rawRows.map(r => String(r.snapshot_date || '').trim()).filter(Boolean))].sort();
+            const calculated = [];
+
+            dates.forEach(snapshotDate => {
+                const memo = {};
+                indexKeys.forEach(indexKey => {
+                    const value = calculateIndexForDate(indexKey, snapshotDate, rawRows, rules, memo);
+                    if (value === null) return;
+
+                    calculated.push({
+                        snapshot_date: snapshotDate,
+                        metric_key: indexKey,
+                        value: Math.round(value),
+                        ...indexMetadata(indexKey)
+                    });
+                });
+            });
+
+            return calculated;
+        }
+
+        function renderTopScores(grouped){
       const overall = getCurrentMetric(grouped, 'overall_health_score');
             const mission = getCurrentMetric(grouped, 'mission_index');
             const financial = getCurrentMetric(grouped, 'financial_index');
@@ -1165,21 +1320,28 @@
         Promise.all([
             csvFetch(DATA_CSV_URL),
             csvFetch(NARRATIVE_CSV_URL),
-            csvFetch(BOARD_BRIEFING_CSV_URL)
+            csvFetch(BOARD_BRIEFING_CSV_URL),
+            csvFetch(INDEX_RULES_CSV_URL)
         ])
-            .then(([dataRows, narrativeRows, boardBriefingRows]) => {
-                const grouped = latestByMetric(dataRows);
+            .then(([dataRows, narrativeRows, boardBriefingRows, ruleRows]) => {
+                indexRules = cleanRuleRows(ruleRows);
 
-                dashboardRows = dataRows;
+                const calculatedKeys = new Set(indexRules.map(r => r.index_key));
+                const rawRows = dataRows.filter(r => !calculatedKeys.has(String(r.metric_key || '').trim()));
+                const calculatedRows = buildCalculatedIndexRows(rawRows, indexRules);
+                const combinedRows = [...rawRows, ...calculatedRows];
+                const grouped = latestByMetric(combinedRows);
+
+                dashboardRows = combinedRows;
                 dashboardGrouped = grouped;
                 briefingRows = boardBriefingRows;
 
                 setText('lastUpdated', 'Updated: ' + new Date().toLocaleDateString());
 
                 renderTopScores(grouped);
-                renderSections(dataRows, grouped);
+                renderSections(combinedRows, grouped);
                 renderNarrative(narrativeRows);
-                renderTrend(dataRows);
+                renderTrend(combinedRows);
                 renderBriefingSummary();
 
             })
