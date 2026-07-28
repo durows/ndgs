@@ -716,7 +716,6 @@
 
     <script>
        
-
         const DATA_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTrtLNV_4te6OAfGMwL3BTsywJTlD-380Eomt0Rfy2fs-3KbhJ8Tg9WFIHwtu-rosI3tfAu9HFB2pb3/pub?gid=1232213229&single=true&output=csv';
         const NARRATIVE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTrtLNV_4te6OAfGMwL3BTsywJTlD-380Eomt0Rfy2fs-3KbhJ8Tg9WFIHwtu-rosI3tfAu9HFB2pb3/pub?gid=1844315228&single=true&output=csv';
         const BOARD_BRIEFING_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTrtLNV_4te6OAfGMwL3BTsywJTlD-380Eomt0Rfy2fs-3KbhJ8Tg9WFIHwtu-rosI3tfAu9HFB2pb3/pub?gid=2084467100&single=true&output=csv';
@@ -978,10 +977,19 @@
         }
 
         function getRowForDate(rows, metricKey, snapshotDate) {
-            return rows.find(r =>
-                String(r.metric_key || '').trim() === metricKey &&
-                String(r.snapshot_date || '').trim() === String(snapshotDate || '').trim()
-            );
+            const targetDate = String(snapshotDate || '').trim();
+
+            // Metrics are not always updated on the same day. For an index snapshot,
+            // use the most recent available value on or before the snapshot date.
+            return rows
+                .filter(r =>
+                    String(r.metric_key || '').trim() === metricKey &&
+                    String(r.snapshot_date || '').trim() &&
+                    String(r.snapshot_date || '').trim() <= targetDate
+                )
+                .sort((a, b) =>
+                    String(b.snapshot_date || '').localeCompare(String(a.snapshot_date || ''))
+                )[0] || null;
         }
 
         function scoreComponent(value, rule, goal) {
@@ -1376,7 +1384,7 @@
                     <div class="calculation-summary-value">${escapeHtml(displayValue(indexRow))}</div>
                 </div>
                 <div class="calculation-grid">${cards}</div>
-                <div class="calculation-formula">Index = sum of each component score × its normalized weight. Goals come from Metric_Dictionary and the current goal is applied to every historical period. Component scores are capped at 100 when the rule says to cap them.</div>
+                <div class="calculation-formula">Index = sum of each component score × its normalized weight. Goals come from Metric_Dictionary and the current goal is applied to every historical period. When component metrics have different update dates, the most recent value available on or before the index date is used. Component scores are capped at 100 when the rule says to cap them.</div>
             `;
         }
 
