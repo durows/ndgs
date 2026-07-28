@@ -1063,35 +1063,122 @@
             return row ? row.value : '';
 }
 
-            function latestByMetric(rows){
-      const grouped = { };
+        function normalizeSnapshotDate(value) {
+            const text = String(value ?? '').trim();
+            if (!text) return '';
 
-      rows.forEach(r => {
-        const key = String(r.metric_key || '').trim();
-            if (!key) return;
+            // Already ISO or close to ISO.
+            const isoMatch = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+            if (isoMatch) {
+                const [, year, month, day] = isoMatch;
+                return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            }
 
-            if (!grouped[key]) grouped[key] = [];
-            grouped[key].push(r);
-      });
+            // Google Sheets sometimes exports dates as M/D/YYYY.
+            const usMatch = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+            if (usMatch) {
+                const [, month, day, year] = usMatch;
+                return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            }
 
-      Object.keys(grouped).forEach(key => {
-                grouped[key].sort((a, b) =>
-                    String(a.snapshot_date).localeCompare(String(b.snapshot_date))
-                );
-      });
+            const parsed = new Date(text);
+            if (!Number.isNaN(parsed.getTime())) {
+                const year = parsed.getFullYear();
+                const month = String(parsed.getMonth() + 1).padStart(2, '0');
+                const day = String(parsed.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            throw new Error(`Unrecognized snapshot date: "${text}"`);
+        }
+
+        function validateDuplicateMetricDates(rows) {
+            const seen = new Map();
+
+            rows.forEach((row, index) => {
+                const metricKey = String(row.metric_key || '').trim();
+                const snapshotDate = normalizeSnapshotDate(row.snapshot_date);
+                if (!metricKey || !snapshotDate) return;
+
+                const key = `${metricKey}|${snapshotDate}`;
+                const value = String(row.value ?? '').trim();
+
+                if (!seen.has(key)) {
+                    seen.set(key, { value, index });
+                    return;
+                }
+
+                const first = seen.get(key);
+
+                if (first.value !== value) {
+                    throw new Error(
+                        `Conflicting duplicate dashboard rows for ${metricKey} on ${snapshotDate}: ` +
+                        `"${first.value}" and "${value}". Remove one of the duplicate rows from Dashboard Values.`
+                    );
+                }
+            });
+        }
+
+        function latestByMetric(rows) {
+            const grouped = {};
+
+            rows.forEach((row, sourceIndex) => {
+                const key = String(row.metric_key || '').trim();
+                if (!key) return;
+
+                const normalizedRow = {
+                    ...row,
+                    snapshot_date: normalizeSnapshotDate(row.snapshot_date),
+                    _source_index: sourceIndex
+                };
+
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(normalizedRow);
+            });
+
+            Object.keys(grouped).forEach(key => {
+                grouped[key].sort((a, b) => {
+                    const dateCompare = a.snapshot_date.localeCompare(b.snapshot_date);
+                    if (dateCompare !== 0) return dateCompare;
+                    return a._source_index - b._source_index;
+                });
+            });
 
             return grouped;
-}
+        }
 
-            function getCurrentMetric(grouped, key){
-      const list = grouped[key] || [];
-            return list[list.length - 1] || { };
-}
+        function getCurrentMetric(grouped, key) {
+            const list = grouped[key] || [];
+            if (!list.length) return {};
 
-            function getPreviousMetric(grouped, key){
-      const list = grouped[key] || [];
-            return list[list.length - 2] || { };
-}
+            return list.reduce((latest, row) => {
+                if (!latest) return row;
+
+                const rowDate = normalizeSnapshotDate(row.snapshot_date);
+                const latestDate = normalizeSnapshotDate(latest.snapshot_date);
+
+                if (rowDate > latestDate) return row;
+                if (rowDate < latestDate) return latest;
+
+                return (row._source_index ?? 0) > (latest._source_index ?? 0)
+                    ? row
+                    : latest;
+            }, null) || {};
+        }
+
+        function getPreviousMetric(grouped, key) {
+            const list = [...(grouped[key] || [])];
+
+            list.sort((a, b) => {
+                const dateCompare = normalizeSnapshotDate(a.snapshot_date)
+                    .localeCompare(normalizeSnapshotDate(b.snapshot_date));
+
+                if (dateCompare !== 0) return dateCompare;
+                return (a._source_index ?? 0) - (b._source_index ?? 0);
+            });
+
+            return list[list.length - 2] || {};
+        }
 
         function calcChange(current, previous, unit) {
             const c = num(current);
@@ -1162,7 +1249,7 @@
                     ...row,
                     ...definition,
                     metric_key: metricKey,
-                    snapshot_date: String(row.snapshot_date ?? '').trim(),
+                    snapshot_date: normalizeSnapshotDate(row.snapshot_date),
                     value: row.value
                 };
             });
@@ -1194,19 +1281,26 @@
         }
 
         function getRowForDate(rows, metricKey, snapshotDate) {
-            const targetDate = String(snapshotDate || '').trim();
+            const targetDate = normalizeSnapshotDate(snapshotDate);
 
             // Metrics are not always updated on the same day. For an index snapshot,
             // use the most recent available value on or before the snapshot date.
             return rows
-                .filter(r =>
-                    String(r.metric_key || '').trim() === metricKey &&
-                    String(r.snapshot_date || '').trim() &&
-                    String(r.snapshot_date || '').trim() <= targetDate
+                .map((row, sourceIndex) => ({
+                    ...row,
+                    snapshot_date: normalizeSnapshotDate(row.snapshot_date),
+                    _source_index: row._source_index ?? sourceIndex
+                }))
+                .filter(row =>
+                    String(row.metric_key || '').trim() === metricKey &&
+                    row.snapshot_date &&
+                    row.snapshot_date <= targetDate
                 )
-                .sort((a, b) =>
-                    String(b.snapshot_date || '').localeCompare(String(a.snapshot_date || ''))
-                )[0] || null;
+                .sort((a, b) => {
+                    const dateCompare = b.snapshot_date.localeCompare(a.snapshot_date);
+                    if (dateCompare !== 0) return dateCompare;
+                    return b._source_index - a._source_index;
+                })[0] || null;
         }
 
         function scoreComponent(value, rule, goal) {
@@ -1899,6 +1993,9 @@
                 const rawRows = enrichedDataRows.filter(
                     r => !calculatedKeys.has(String(r.metric_key || '').trim())
                 );
+
+                validateDuplicateMetricDates(rawRows);
+
                 const calculatedRows = buildCalculatedIndexRows(rawRows, indexRules, metricDictionary);
                 const combinedRows = [...rawRows, ...calculatedRows];
                 const grouped = latestByMetric(combinedRows);
@@ -1906,6 +2003,21 @@
                 dashboardRows = combinedRows;
                 dashboardGrouped = grouped;
                 briefingRows = boardBriefingRows;
+
+                window.dashboardScoreAudit = {
+                    overall: getCurrentMetric(grouped, 'overall_health_score'),
+                    mission: getCurrentMetric(grouped, 'mission_index'),
+                    financial: getCurrentMetric(grouped, 'financial_index'),
+                    sustainability: getCurrentMetric(grouped, 'sustainability_index')
+                };
+
+                console.table(
+                    Object.entries(window.dashboardScoreAudit).map(([name, row]) => ({
+                        score: name,
+                        snapshot_date: row.snapshot_date || '',
+                        value: row.value ?? ''
+                    }))
+                );
 
                 setText('lastUpdated', 'Updated: ' + new Date().toLocaleDateString());
 
