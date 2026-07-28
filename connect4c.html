@@ -375,6 +375,26 @@
             color: var(--muted);
         }
 
+        .calculation-math {
+            margin-top: 3px;
+            font-size: 11px;
+            line-height: 1.25;
+            color: var(--muted);
+            text-align: right;
+            font-weight: 400;
+        }
+
+        .calculation-math strong {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .calculation-contribution {
+            margin-top: 7px;
+            padding-top: 7px;
+            border-top: 1px dashed #e1e8ef;
+        }
+
         .detail-chart-grid {
             display: grid;
             grid-template-columns: repeat(3,1fr);
@@ -1654,6 +1674,45 @@
 
             const weightTotal = parts.reduce((sum, x) => sum + x.rule.weight, 0);
 
+            function mathNumber(value) {
+                const number = num(value);
+                if (!Number.isFinite(number)) return '--';
+
+                return Number.isInteger(number)
+                    ? number.toLocaleString()
+                    : number.toLocaleString(undefined, { maximumFractionDigits: 2 });
+            }
+
+            function componentFormula(rule, componentRow, componentScore) {
+                const currentNumber = mathNumber(componentRow.value);
+                const goalNumber = mathNumber(componentRow.goal);
+                const scoreNumber = componentScore.toFixed(1);
+
+                if (rule.component_type === 'index' || rule.scoring_method === 'direct_score') {
+                    return `Uses the index score directly = <strong>${scoreNumber}</strong>`;
+                }
+
+                if (rule.scoring_method === 'linear') {
+                    const minimum = Number.isFinite(rule.minimum) ? mathNumber(rule.minimum) : '0';
+                    const maximumValue = Number.isFinite(rule.maximum)
+                        ? rule.maximum
+                        : componentRow.goal;
+                    const maximum = mathNumber(maximumValue);
+
+                    if (rule.direction === 'lower') {
+                        return `(${maximum} − ${currentNumber}) ÷ (${maximum} − ${minimum}) × 100 = <strong>${scoreNumber}</strong>`;
+                    }
+
+                    return `(${currentNumber} − ${minimum}) ÷ (${maximum} − ${minimum}) × 100 = <strong>${scoreNumber}</strong>`;
+                }
+
+                if (rule.direction === 'lower') {
+                    return `${goalNumber} ÷ ${currentNumber} × 100 = <strong>${scoreNumber}</strong>`;
+                }
+
+                return `${currentNumber} ÷ ${goalNumber} × 100 = <strong>${scoreNumber}</strong>`;
+            }
+
             const cards = parts.map(({ rule, componentRow, componentScore }) => {
                 const normalizedWeight = weightTotal ? (rule.weight / weightTotal) * 100 : 0;
                 const contribution = componentScore * normalizedWeight / 100;
@@ -1664,6 +1723,10 @@
                     ? 'Calculated index score'
                     : (rule.direction === 'lower' ? 'Lower is better' : 'Higher is better');
 
+                const scoreFormula = componentFormula(rule, componentRow, componentScore);
+                const contributionFormula =
+                    `${componentScore.toFixed(1)} × ${normalizedWeight.toFixed(0)}% = <strong>${contribution.toFixed(1)}</strong>`;
+
                 return `
                     <div class="calculation-item">
                         <div class="calculation-item-title">${escapeHtml(label)}</div>
@@ -1671,11 +1734,20 @@
                         ${rule.component_type === 'index' ? '' : `<div class="calculation-line"><span>Goal</span><strong>${escapeHtml(target)}</strong></div>`}
                         <div class="calculation-line"><span>Weight</span><strong>${normalizedWeight.toFixed(0)}%</strong></div>
                         <div class="calculation-line"><span>Method</span><strong>${escapeHtml(method)}</strong></div>
+
                         <div class="calculation-score">
                             <span>Component score</span>
                             <strong>${componentScore.toFixed(1)}</strong>
                         </div>
-                        <div class="calculation-line"><span>Weighted contribution</span><strong>${contribution.toFixed(1)} pts</strong></div>
+                        <div class="calculation-math">${scoreFormula}</div>
+
+                        <div class="calculation-contribution">
+                            <div class="calculation-line">
+                                <span>Weighted contribution</span>
+                                <strong>${contribution.toFixed(1)} pts</strong>
+                            </div>
+                            <div class="calculation-math">${contributionFormula}</div>
+                        </div>
                     </div>
                 `;
             }).join('');
