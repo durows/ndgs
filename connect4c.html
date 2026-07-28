@@ -975,26 +975,26 @@
         }
 
             function escapeHtml(value){
-      return String(value ?? '')
-            .replaceAll('&','&amp;')
-            .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-            .replaceAll('"','&quot;')
-            .replaceAll("'",'&#039;');
-}
+              return String(value ?? '')
+                    .replaceAll('&','&amp;')
+                    .replaceAll('<','&lt;')
+                .replaceAll('>','&gt;')
+                    .replaceAll('"','&quot;')
+                    .replaceAll("'",'&#039;');
+            }
 
             function setText(id, value){
                 document.getElementById(id).textContent = value ?? '';
-}
+            }
 
             function setMeter(id, value){
-      const safe = Math.max(0, Math.min(100, Number(value || 0)));
-            document.getElementById(id).style.width = safe + '%';
-}
+                  const safe = Math.max(0, Math.min(100, Number(value || 0)));
+                        document.getElementById(id).style.width = safe + '%';
+            }
 
             function num(value){
-      return Number(String(value ?? '').replace('%','').replaceAll(',',''));
-}
+                  return Number(String(value ?? '').replace('%','').replaceAll(',',''));
+            }
 
         function displayValue(row) {
 
@@ -1055,9 +1055,9 @@
         }
 
             function getNarrative(rows, key){
-      const row = rows.find(r => String(r.key || '').trim() === key);
-            return row ? row.value : '';
-}
+                  const row = rows.find(r => String(r.key || '').trim() === key);
+                        return row ? row.value : '';
+            }
 
         function normalizeSnapshotDate(value) {
             const text = String(value ?? '').trim();
@@ -1191,19 +1191,18 @@
         }
 
             function calcGap(current, goal, format){
-      const c = num(current);
-            const g = num(goal);
-
-            if (isNaN(c) || isNaN(g)) return '--';
-
-            const diff = c - g;
-      const sign = diff > 0 ? '+' : '';
-
-            if (format === 'percent') return `${sign}${diff.toFixed(1)} pts`;
-            if (format === 'score') return `${sign}${diff.toFixed(1)}`;
-
-            return `${sign}${diff.toLocaleString()}`;
-}
+              const c = num(current);
+                const g = num(goal);
+                if (isNaN(c) || isNaN(g)) return '--';
+    
+                const diff = c - g;
+                const sign = diff > 0 ? '+' : '';
+    
+                if (format === 'percent') return `${sign}${diff.toFixed(1)} pts`;
+                if (format === 'score') return `${sign}${diff.toFixed(1)}`;
+    
+                return `${sign}${diff.toLocaleString()}`;
+            }
 
         function optionalNumber(value) {
             const cleaned = String(value ?? '').replace('%', '').replaceAll(',', '').trim();
@@ -1427,23 +1426,22 @@
         }
 
         function renderTopScores(grouped){
-      const overall = getCurrentMetric(grouped, 'overall_health_score');
+            const overall = getCurrentMetric(grouped, 'overall_health_score');
             const mission = getCurrentMetric(grouped, 'mission_index');
             const financial = getCurrentMetric(grouped, 'financial_index');
             const sustainability = getCurrentMetric(grouped, 'sustainability_index');
 
-                setText('overallScore', displayValue(overall));
-                setText('missionIndex', displayValue(mission));
-                setText('financialIndex', displayValue(financial));
-                setText('sustainabilityIndex', displayValue(sustainability));
-
+            setText('overallScore', displayValue(overall));
+            setText('missionIndex', displayValue(mission));
+            setText('financialIndex', displayValue(financial));
+            setText('sustainabilityIndex', displayValue(sustainability));
+            
             setMeter('overallMeter', overall.value);
             setMeter('missionMeter', mission.value);
             setMeter('financialMeter', financial.value);
             setMeter('sustainabilityMeter', sustainability.value);
-
-           
-}
+              
+        }
 
         function getKpiRows(rows, section) {
             const latestRowsByMetric = {};
@@ -1482,51 +1480,51 @@
                     const goalDisplay = displayGoal(current);
 
                     return `
-          <div class="kpi-row kpi-row-expanded">
-            <div class="kpi-icon">
-              <i class="fa-solid ${escapeHtml(k.icon || 'fa-circle-info')}"></i>
-            </div>
-
-            <div class="kpi-body">
-              <div class="kpi-title">${escapeHtml(k.metric_label || '')}</div>
-              <div class="kpi-sub">${escapeHtml(k.sub || '')}</div>
-
-              <div class="kpi-compare">
-                <div>
-                  <div class="compare-label">Previous</div>
-                  <div class="compare-value">${escapeHtml(previousDisplay)}</div>
-                </div>
-                <div>
-                  <div class="compare-label">Goal</div>
-                  <div class="compare-value">${escapeHtml(goalDisplay)}</div>
-                </div>
-                <div>
-                    <div class="compare-label">Change</div>
-                    <div class="compare-value">
-                    ${escapeHtml(calcChange(current.value, previous.value, current.unit))}
-                    </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="kpi-value">${escapeHtml(currentDisplay)}</div>
-          </div>
-        `;
-                }).join('');
-}
+                      <div class="kpi-row kpi-row-expanded">
+                        <div class="kpi-icon">
+                          <i class="fa-solid ${escapeHtml(k.icon || 'fa-circle-info')}"></i>
+                        </div>
+            
+                        <div class="kpi-body">
+                          <div class="kpi-title">${escapeHtml(k.metric_label || '')}</div>
+                          <div class="kpi-sub">${escapeHtml(k.sub || '')}</div>
+            
+                          <div class="kpi-compare">
+                            <div>
+                              <div class="compare-label">Previous</div>
+                              <div class="compare-value">${escapeHtml(previousDisplay)}</div>
+                            </div>
+                            <div>
+                              <div class="compare-label">Goal</div>
+                              <div class="compare-value">${escapeHtml(goalDisplay)}</div>
+                            </div>
+                            <div>
+                                <div class="compare-label">Change</div>
+                                <div class="compare-value">
+                                ${escapeHtml(calcChange(current.value, previous.value, current.unit))}
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+            
+                        <div class="kpi-value">${escapeHtml(currentDisplay)}</div>
+                      </div>
+                    `;
+                            }).join('');
+            }
 
             function renderSections(rows, grouped){
                 renderKpis('missionKpis', getKpiRows(rows, 'mission'), grouped);
-            renderKpis('financialKpis', getKpiRows(rows, 'financial'), grouped);
-            renderKpis('sustainabilityKpis', getKpiRows(rows, 'sustainability'), grouped);
-}
+                renderKpis('financialKpis', getKpiRows(rows, 'financial'), grouped);
+                renderKpis('sustainabilityKpis', getKpiRows(rows, 'sustainability'), grouped);
+            }
 
             function renderNarrative(rows){
                 setText('boardStory', getNarrative(rows, 'board_story'));
-            setText('missionCallout', getNarrative(rows, 'mission_callout'));
-            setText('financialCallout', getNarrative(rows, 'financial_callout'));
-            setText('sustainabilityCallout', getNarrative(rows, 'sustainability_callout'));
-}
+                setText('missionCallout', getNarrative(rows, 'mission_callout'));
+                setText('financialCallout', getNarrative(rows, 'financial_callout'));
+                setText('sustainabilityCallout', getNarrative(rows, 'sustainability_callout'));
+            }
 
             function renderTrend(rows){
               const scoreKeys = [
@@ -1544,28 +1542,28 @@
                     )].sort();
 
                     function series(key){
-                return dates.map(d => {
-                  const row = rows.find(r => r.snapshot_date === d && r.metric_key === key);
-                    return row ? num(row.value) : null;
-                });
-              }
+                        return dates.map(d => {
+                          const row = rows.find(r => r.snapshot_date === d && r.metric_key === key);
+                            return row ? num(row.value) : null;
+                        });
+                      }
 
                     new Chart(document.getElementById('trendChart'), {
                         type:'line',
-                    data:{
-                        labels:dates,
-                    datasets:[
-                    {label:'Overall', data:series('overall_health_score'), tension:.25 },
-                    {label:'Mission', data:series('mission_index'), tension:.25 },
-                    {label:'Financial', data:series('financial_index'), tension:.25 },
-                    {label:'Sustainability', data:series('sustainability_index'), tension:.25 }
-                    ]
-                },
-                    options:{
-                        responsive:true,
-                    plugins:{legend:{position:'bottom' } },
-                    scales:{y:{min:0, max:100 } }
-                }
+                        data:{
+                            labels:dates,
+                        datasets:[
+                        {label:'Overall', data:series('overall_health_score'), tension:.25 },
+                        {label:'Mission', data:series('mission_index'), tension:.25 },
+                        {label:'Financial', data:series('financial_index'), tension:.25 },
+                        {label:'Sustainability', data:series('sustainability_index'), tension:.25 }
+                        ]
+                    },
+                        options:{
+                            responsive:true,
+                        plugins:{legend:{position:'bottom' } },
+                        scales:{y:{min:0, max:100 } }
+                    }
               });
             }
         function destroyDetailCharts() {
@@ -1800,15 +1798,15 @@
             const rows = getVisibleBriefings().slice(0, 3);
 
             document.getElementById('briefingGrid').innerHTML = rows.map(r => `
-        <div class="briefing-item">
-            <div class="briefing-meta">
-                <span class="briefing-category">${briefingIcon(r.category)} ${escapeHtml(r.category || '')}</span>
-                <span>${escapeHtml(r.event_date || '')}</span>
-            </div>
-            <div class="briefing-title">${escapeHtml(r.title || '')}</div>
-            <div class="briefing-details">${escapeHtml(r.details || '')}</div>
-        </div>
-    `).join('');
+                <div class="briefing-item">
+                    <div class="briefing-meta">
+                        <span class="briefing-category">${briefingIcon(r.category)} ${escapeHtml(r.category || '')}</span>
+                        <span>${escapeHtml(r.event_date || '')}</span>
+                    </div>
+                    <div class="briefing-title">${escapeHtml(r.title || '')}</div>
+                    <div class="briefing-details">${escapeHtml(r.details || '')}</div>
+                </div>
+            `).join('');
         }
 
         function renderBriefingArchive() {
@@ -1816,16 +1814,16 @@
                 .filter(r => r.event_date)
                 .sort((a, b) => String(b.event_date).localeCompare(String(a.event_date)));
 
-            document.getElementById('briefingArchive').innerHTML = rows.map(r => `
-        <div class="archive-row">
-            <div>${escapeHtml(r.event_date || '')}</div>
-            <div>${briefingIcon(r.category)} ${escapeHtml(r.category || '')}</div>
-            <div>
-                <strong>${escapeHtml(r.title || '')}</strong><br>
-                <span style="color:var(--muted);">${escapeHtml(r.details || '')}</span>
-            </div>
-        </div>
-    `).join('');
+                document.getElementById('briefingArchive').innerHTML = rows.map(r => `
+                    <div class="archive-row">
+                        <div>${escapeHtml(r.event_date || '')}</div>
+                        <div>${briefingIcon(r.category)} ${escapeHtml(r.category || '')}</div>
+                        <div>
+                            <strong>${escapeHtml(r.title || '')}</strong><br>
+                            <span style="color:var(--muted);">${escapeHtml(r.details || '')}</span>
+                        </div>
+                    </div>
+                `).join('');
         }
 
         function toggleBoardBriefing() {
