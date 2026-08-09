@@ -855,14 +855,14 @@
     <main class="page"><section class="top-summary-row" id="topSummaryRow"><section class="card story-card" id="storyCard"><h2 id="storyTitle">Dashboard Story</h2><p id="boardStory"></p></section><section class="score-card briefing-summary-card" id="briefingSummaryCard" onclick="showBriefing()"><div class="score-label" id="briefingSummaryLabel">Briefing</div><div class="score-value" id="briefingSummaryCount">--</div><div class="score-note" id="briefingSummarySubtitle"></div></section></section><section class="score-row" id="scoreRow"></section><section class="card brief-card" id="briefCard" hidden><div class="detail-head"><div><h3 id="briefTitle"></h3><div class="subtitle" style="color:var(--muted)" id="briefSubtitle"></div></div><button class="detail-close" onclick="hideBriefing()">×</button></div><div class="brief-grid" id="briefGrid"></div></section><section class="card detail-card" id="detailCard" hidden><div class="detail-head"><div><div class="detail-title-row"><h3 id="detailTitle"></h3></div><div class="subtitle" style="color:var(--muted)" id="detailSub"></div></div><button class="detail-close" onclick="hideDetail()">×</button></div><div class="index-calculation" id="indexCalculationBreakdown"></div><div class="detail-chart-grid" id="detailChartGrid"></div></section><section class="dashboard-grid" id="dashboardGrid"></section><section class="card trend-card" id="trendCard"><h3>Trend</h3><canvas id="trendChart" height="95"></canvas></section><div class="footer-note" id="footerText"></div></main>
     <script>
         // Publish each worksheet as CSV, then paste its URL below.
-        const SETTINGS_CSV_URL = 'PASTE_DASHBOARD_SETTINGS_CSV_URL';
-        const SECTIONS_CSV_URL = 'PASTE_SECTIONS_CSV_URL';
-        const DICTIONARY_CSV_URL = 'PASTE_METRIC_DICTIONARY_CSV_URL';
-        const VALUES_CSV_URL = 'PASTE_DASHBOARD_VALUES_CSV_URL';
-        const RULES_CSV_URL = 'PASTE_INDEX_RULES_CSV_URL';
-        const NARRATIVE_CSV_URL = 'PASTE_NARRATIVE_CSV_URL';
-        const BRIEFING_CSV_URL = 'PASTE_BRIEFING_CSV_URL';
-        const INDEX_BANDS_CSV_URL = 'PASTE_BANDS_CSV_URL';
+        const SETTINGS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=1633262554&single=true&output=csv';
+        const SECTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=1895672496&single=true&output=csv';
+        const DICTIONARY_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=830408528&single=true&output=csv';
+        const VALUES_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=1509973590&single=true&output=csv';
+        const RULES_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=989181859&single=true&output=csv';
+        const NARRATIVE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=678880527&single=true&output=csv';
+        const BRIEFING_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=201091370&single=true&output=csv';
+        const INDEX_BANDS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=113917625&single=true&output=csv';
 
         let settings = {},
             sections = [],
