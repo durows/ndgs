@@ -1,0 +1,1477 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Generic KPI Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <style>
+        :root {
+            --primary: #024476;
+            --primaryLeft: #fbc100;
+            --accent: #2f7d32;
+            --bg: #eef1f6;
+            --card: #fff;
+            --line: #d9e0e8;
+            --text: #1f2937;
+            --muted: #667085
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial,Helvetica,sans-serif;
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        .header {
+            background: var(--primary);
+            color: #fff;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            position: sticky;
+            top: 0;
+            z-index: 100
+        }
+
+            .header h1 {
+                font-size: 20px;
+                margin: 0
+            }
+
+        .subtitle {
+            font-size: 13px;
+            opacity: .9
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .header a, .header button {
+            color: #fff
+        }
+
+        .sheet-link {
+            font-size: 13px;
+            font-weight: 700
+        }
+
+        .how-button {
+            border: 1px solid rgba(255,255,255,.65);
+            background: rgba(255,255,255,.14);
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-weight: 800;
+            cursor: pointer
+        }
+
+        .qr {
+            width: 72px;
+            height: 72px;
+            background: #fff;
+            padding: 4px;
+            border-radius: 8px
+        }
+
+        .page {
+            max-width: 1500px;
+            margin: auto;
+            padding: 14px
+        }
+
+        .card, .score-card, .section-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 1px 2px rgba(0,0,0,.04)
+        }
+
+        .story-card {
+            border-left: 6px solid var(--primary);
+            margin-bottom: 12px
+        }
+
+            .story-card h2 {
+                font-size: 18px;
+                margin: 0 0 6px
+            }
+
+            .story-card p {
+                margin: 0;
+                color: var(--muted)
+            }
+
+        .top-summary-row {
+            display: grid;
+            grid-template-columns: minmax(0,1fr) 235px;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: stretch
+        }
+
+            .top-summary-row .story-card {
+                margin-bottom: 0
+            }
+
+        .briefing-summary-card {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100%
+        }
+
+            .briefing-summary-card:hover {
+                border-color: var(--primary);
+                box-shadow: 0 2px 7px rgba(2,68,118,.14)
+            }
+
+            .briefing-summary-card .score-value {
+                margin-top: 4px;
+                font-size: 27px
+            }
+
+        .score-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
+            gap: 12px;
+            margin-bottom: 12px
+        }
+
+        .score-card {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+        }
+
+            .score-card:hover {
+                transform: translateY(-2px);
+                border-color: var(--primary);
+                box-shadow: 0 4px 12px rgba(2,68,118,.16);
+            }
+
+            .score-card:active {
+                transform: translateY(0);
+            }
+
+            .score-card.overall {
+                background: linear-gradient(135deg, var(--primary), #1769a0);
+                color: #fff;
+                padding: 17px;
+                box-shadow: 0 3px 10px rgba(2,68,118,.18);
+            }
+
+            .score-card.overall:hover {
+                border-color: rgba(255,255,255,.9);
+                box-shadow: 0 5px 14px rgba(2,68,118,.28);
+            }
+
+                .score-card.overall .score-value {
+                    font-size: 39px
+                }
+
+        .score-label-row {
+            min-height: 45px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 4px;
+            font-size: 13px;
+        }
+
+        .score-label {
+            flex: 0 1 auto;
+            min-width: 0;
+            line-height: 1.15;
+        }
+
+
+
+        .overall .score-label, .overall .score-note {
+            color: #eef
+        }
+
+        .score-value {
+            font-size: 34px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-note {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
+            min-height: 34px;
+        }
+
+        .meter {
+            height: 8px;
+            background: #e8edf3;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 10px
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: var(--accent)
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(320px,1fr));
+            gap: 12px
+        }
+
+            .dashboard-grid.sections-1 {
+                grid-template-columns: 1fr
+            }
+
+            .dashboard-grid.sections-2 {
+                grid-template-columns: repeat(2,minmax(0,1fr))
+            }
+
+            .dashboard-grid.sections-3 {
+                grid-template-columns: repeat(3,minmax(0,1fr))
+            }
+
+            .dashboard-grid.sections-4 {
+                grid-template-columns: repeat(2,minmax(0,1fr))
+            }
+
+            .dashboard-grid.sections-5, .dashboard-grid.sections-6 {
+                grid-template-columns: repeat(3,minmax(0,1fr))
+            }
+
+        .section-card h3 {
+            margin: 0
+        }
+
+        .section-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px
+        }
+
+        .section-question {
+            margin: 0 0 12px;
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        .kpi-list {
+            display: grid;
+            gap: 10px
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: 42px 1fr auto;
+            gap: 10px;
+            border-top: 1px solid #edf1f5;
+            padding-top: 10px
+        }
+
+            .kpi-row:first-child {
+                border-top: 0
+            }
+
+        .kpi-icon {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #eef0ff;
+            color: var(--primary)
+        }
+
+        .kpi-title {
+            font-weight: 800
+        }
+
+        .kpi-title-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            min-width: 0
+        }
+
+
+
+        .info-title-link:hover,
+        .info-title-link:focus-visible {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .info-title-link:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 3px;
+            border-radius: 3px;
+            margin-left: 4px;
+            vertical-align: baseline;
+        }
+
+
+
+            .info-title-link:hover .info-cue,
+            .info-title-link:focus-visible .info-cue {
+                opacity: 1;
+                transform: scale(1.12);
+            }
+
+        .info-title-link {
+            appearance: none;
+            border: 0;
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            color: inherit;
+            font: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+            text-align: left;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline;
+        }
+
+        .info-cue {
+            color: var(--primary);
+            font-size: 12px;
+            opacity: .72;
+            margin-left: 4px;
+            vertical-align: baseline;
+            transition: opacity .15s ease, transform .15s ease;
+        }
+
+        .score-card.overall .info-title-link:hover,
+        .score-card.overall .info-title-link:focus-visible {
+            color: #fff;
+        }
+
+        .score-card.overall .info-cue {
+            color: #fff;
+            opacity: .8;
+        }
+
+        .section-title-link,
+        .metric-title-link,
+        .calculation-title-link {
+            font-weight: 800;
+        }
+
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .kpi-value {
+            text-align: right;
+            font-size: 20px;
+            font-weight: 800
+        }
+
+        .kpi-asof {
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .kpi-compare {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 6px;
+            margin-top: 8px
+        }
+
+            .kpi-compare > div {
+                background: #f7f9fc;
+                border: 1px solid #e5eaf0;
+                border-radius: 7px;
+                padding: 6px
+            }
+
+        .compare-label {
+            font-size: 10px;
+            color: var(--muted)
+        }
+
+        .compare-value {
+            font-size: 12px;
+            font-weight: 800
+        }
+
+        .callout {
+            margin-top: 12px;
+            background: #f7f8ff;
+            border: 1px solid #dedffd;
+            border-radius: 9px;
+            padding: 10px;
+            font-size: 13px
+        }
+
+        .trend-card {
+            margin-top: 12px
+        }
+
+        .footer-note {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 12px
+        }
+
+        .detail-card, .brief-card {
+            margin-bottom: 12px
+        }
+
+        .detail-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px
+        }
+
+        .detail-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+            .detail-title-row h3 {
+                margin: 0
+            }
+
+        .detail-close {
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer
+        }
+
+        .calc-grid, .brief-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+            gap: 10px;
+            margin-top: 10px
+        }
+
+        .calc-item, .brief-item {
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 10px;
+            background: #fafbfd
+        }
+
+        .calc-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--muted);
+            padding: 3px 0
+        }
+
+        .calc-score {
+            font-size: 22px;
+            font-weight: 800;
+            border-top: 1px solid #e7ebf0;
+            margin-top: 8px;
+            padding-top: 8px
+        }
+
+        .brief-meta {
+            font-size: 11px;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between
+        }
+
+        .brief-title {
+            font-weight: 800;
+            margin: 5px 0
+        }
+
+        .brief-details {
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        .index-calculation {
+            margin-top: 12px;
+            margin-bottom: 14px
+        }
+
+        .calculation-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            border: 1px solid #b8d6ee;
+            border-left: 6px solid var(--primary);
+            border-radius: 10px;
+            background: #f7fbff
+        }
+
+        .calculation-summary-label {
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        .calculation-summary-title {
+            font-size: 16px;
+            font-weight: 800
+        }
+
+        .calculation-summary-value {
+            font-size: 30px;
+            font-weight: 800;
+            white-space: nowrap
+        }
+
+        .calculation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+            gap: 10px
+        }
+
+        .calculation-item {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 11px;
+            background: #fff
+        }
+
+        .calculation-item-title-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 8px
+        }
+
+        .calculation-item-title {
+            font-size: 14px;
+            font-weight: 800
+        }
+
+        .calculation-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 3px 0;
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+            .calculation-line strong {
+                color: var(--text);
+                text-align: right
+            }
+
+        .calculation-date {
+            font-size: 10px;
+            font-weight: 400;
+            color: var(--muted);
+            margin-top: 1px
+        }
+
+        .calculation-score {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8eef4;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px
+        }
+
+            .calculation-score strong {
+                font-size: 22px
+            }
+
+        .calculation-math {
+            margin-top: 3px;
+            font-size: 11px;
+            line-height: 1.25;
+            color: var(--muted);
+            text-align: right
+        }
+
+            .calculation-math strong {
+                color: var(--text)
+            }
+
+        .calculation-contribution {
+            margin-top: 7px;
+            padding-top: 7px;
+            border-top: 1px dashed #e1e8ef
+        }
+
+        .calculation-formula {
+            margin: 10px 0 0;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.35
+        }
+
+        .detail-chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+            gap: 12px;
+            margin-top: 12px
+        }
+
+        .detail-mini-chart {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            background: #f8fbfe;
+            min-height: 250px
+        }
+
+        .detail-mini-chart-title {
+            font-weight: 800;
+            font-size: 13px;
+            margin-bottom: 6px
+        }
+
+        .detail-mini-chart canvas {
+            max-height: 210px
+        }
+
+        .drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.35);
+            display: none;
+            z-index: 199
+        }
+
+            .drawer-backdrop.open {
+                display: block
+            }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -540px;
+            width: 520px;
+            max-width: 94vw;
+            height: 100vh;
+            background: #fff;
+            z-index: 200;
+            transition: right .2s;
+            display: flex;
+            flex-direction: column;
+            margin-top: 108px;
+        }
+
+            .drawer.open {
+                right: 0
+            }
+
+        .drawer-head {
+            padding: 14px;
+            border-bottom: 1px solid var(--line);
+            border-left: 0px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .drawer-body {
+            overflow: auto;
+            padding: 14px
+        }
+
+        .help-section {
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 11px;
+            margin-bottom: 10px
+        }
+
+        .metric-info-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.35);
+            display: none;
+            z-index: 209
+        }
+
+            .metric-info-backdrop.open {
+                display: block
+            }
+
+        .metric-info-drawer {
+            position: fixed;
+            top: 0;
+            right: -540px;
+            width: 520px;
+            max-width: 94vw;
+            height: 100vh;
+            background: #fff;
+            z-index: 210;
+            transition: right .2s;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 30px rgba(15,23,42,.2);
+            margin-top: 108px;
+        }
+
+            .metric-info-drawer.open {
+                right: 0
+            }
+
+        .metric-info-drawer-head {
+            padding: 14px;
+            border-bottom: 1px solid var(--line);
+            border-left: 0px solid var(--primaryLeft);
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            background: #f8fbfe;
+        }
+
+            .metric-info-drawer-head h2 {
+                margin: 0 0 4px;
+                font-size: 19px
+            }
+
+        .metric-info-drawer-label {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .metric-info-drawer-body {
+            overflow: auto;
+            padding: 18px
+        }
+
+        .metric-info-text {
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--text)
+        }
+
+        .help-section h3 {
+            margin: 0 0 7px;
+            color: var(--primary)
+        }
+
+        @media(max-width:1100px) {
+            .dashboard-grid.sections-3, .dashboard-grid.sections-5, .dashboard-grid.sections-6 {
+                grid-template-columns: repeat(2,minmax(0,1fr))
+            }
+        }
+
+        @media(max-width:900px) {
+            .top-summary-row {
+                grid-template-columns: minmax(0,1fr) 210px
+            }
+        }
+
+        @media(max-width:700px) {
+            .top-summary-row {
+                grid-template-columns: 1fr
+            }
+
+            .dashboard-grid, .dashboard-grid.sections-1, .dashboard-grid.sections-2, .dashboard-grid.sections-3, .dashboard-grid.sections-4, .dashboard-grid.sections-5, .dashboard-grid.sections-6 {
+                grid-template-columns: 1fr
+            }
+
+            .header {
+                align-items: flex-start;
+                flex-direction: column
+            }
+
+            .header-actions {
+                margin-left: 0;
+                flex-wrap: wrap
+            }
+
+            .qr {
+                display: none
+            }
+
+            .kpi-row {
+                grid-template-columns: 38px 1fr
+            }
+
+            .kpi-value {
+                grid-column: 2;
+                text-align: left
+            }
+
+            .kpi-compare {
+                grid-template-columns: 1fr
+            }
+        }
+
+
+        .score-card.active-index {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(2,68,118,.16);
+        }
+
+            .score-card.active-index:hover {
+                box-shadow: 0 0 0 3px rgba(2,68,118,.16), 0 5px 14px rgba(2,68,118,.18);
+            }
+
+            .score-card.active-index:not(.overall) .score-label {
+                color: var(--primary);
+            }
+    </style>
+</head>
+<body>
+    <header class="header"><div><h1 id="dashboardTitle">Loading...</h1><div class="subtitle" id="dashboardSubtitle"></div></div><div class="header-actions"><a id="sheetLink" class="sheet-link" target="_blank">Spreadsheet</a><button id="helpButton" class="how-button" onclick="toggleHelp()"><i class="fa-solid fa-calculator"></i> How Calculated</button><img id="qrCode" class="qr" alt="QR code"></div></header>
+    <div class="drawer-backdrop" id="drawerBackdrop" onclick="closeHelp()"></div><aside class="drawer" id="helpDrawer"><div class="drawer-head"><div><h2>How is this dashboard calculated?</h2><div class="subtitle" style="color:var(--muted)">Live documentation from the spreadsheet.</div></div><button class="detail-close" onclick="closeHelp()">×</button></div><div class="drawer-body" id="helpBody"></div></aside>
+    <div class="metric-info-backdrop" id="metricInfoBackdrop" onclick="closeMetricInfo()"></div>
+    <aside class="metric-info-drawer" id="metricInfoDrawer" aria-hidden="true">
+        <div class="metric-info-drawer-head">
+            <div><div class="metric-info-drawer-label" id="metricInfoType">Metric information</div><h2 id="metricInfoTitle">Metric</h2></div>
+            <button type="button" class="detail-close" onclick="closeMetricInfo()" aria-label="Close metric information">×</button>
+        </div>
+        <div class="metric-info-drawer-body"><div id="metricInfoText" class="metric-info-text"></div></div>
+    </aside>
+    <main class="page"><section class="top-summary-row" id="topSummaryRow"><section class="card story-card" id="storyCard"><h2 id="storyTitle">Dashboard Story</h2><p id="boardStory"></p></section><section class="score-card briefing-summary-card" id="briefingSummaryCard" onclick="showBriefing()"><div class="score-label" id="briefingSummaryLabel">Briefing</div><div class="score-value" id="briefingSummaryCount">--</div><div class="score-note" id="briefingSummarySubtitle"></div></section></section><section class="score-row" id="scoreRow"></section><section class="card brief-card" id="briefCard" hidden><div class="detail-head"><div><h3 id="briefTitle"></h3><div class="subtitle" style="color:var(--muted)" id="briefSubtitle"></div></div><button class="detail-close" onclick="hideBriefing()">×</button></div><div class="brief-grid" id="briefGrid"></div></section><section class="card detail-card" id="detailCard" hidden><div class="detail-head"><div><div class="detail-title-row"><h3 id="detailTitle"></h3></div><div class="subtitle" style="color:var(--muted)" id="detailSub"></div></div><button class="detail-close" onclick="hideDetail()">×</button></div><div class="index-calculation" id="indexCalculationBreakdown"></div><div class="detail-chart-grid" id="detailChartGrid"></div></section><section class="dashboard-grid" id="dashboardGrid"></section><section class="card trend-card" id="trendCard"><h3>Trend</h3><canvas id="trendChart" height="95"></canvas></section><div class="footer-note" id="footerText"></div></main>
+    <script>
+        // Publish each worksheet as CSV, then paste its URL below.
+        const SETTINGS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=1633262554&single=true&output=csv';
+        const SECTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=1895672496&single=true&output=csv';
+        const DICTIONARY_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=830408528&single=true&output=csv';
+        const VALUES_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=1509973590&single=true&output=csv';
+        const RULES_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=989181859&single=true&output=csv';
+        const NARRATIVE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=678880527&single=true&output=csv';
+        const BRIEFING_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=201091370&single=true&output=csv';
+        const INDEX_BANDS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRn5uIMD9g4mkwL4xsuITEEbOsXrAFPHM7__gqhn9HHVGyTFkSRvlqeGwAwwWPdkpYOAMCBGux_8aTX/pub?gid=113917625&single=true&output=csv';
+
+        let settings = {},
+            sections = [],
+            dictionary = {},
+            rows = [],
+            rules = [],
+            bands = [],
+            narrative = {},
+            briefing = [],
+            grouped = {},
+            chart = null,
+            detailCharts = [],
+            activeIndexKey = null,
+            activeMetricInfoKey = null;
+        const norm = h => String(h ?? '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+        function fetchCsv(url) { return new Promise((resolve, reject) => Papa.parse(url, { download: true, header: true, skipEmptyLines: true, transformHeader: norm, complete: r => resolve(r.data || []), error: reject })); }
+        function fetchOptionalCsv(url) { return String(url || '').trim() ? fetchCsv(url) : Promise.resolve([]); }
+        const n = v => { const x = Number(String(v ?? '').replaceAll(',', '').replace('%', '')); return Number.isFinite(x) ? x : null };
+        const esc = v => String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+        function dateNorm(v) { const d = new Date(v); if (!isNaN(d)) return d.toISOString().slice(0, 10); const m = String(v).match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); return m ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}` : '' }
+        function fmtDate(v) { const x = dateNorm(v); return x ? new Date(x + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'date unavailable' }
+        function display(v, unit) { if (v === null || v === undefined || v === '') return '--'; if (unit === 'percent') return `${v}%`; if (unit === 'currency') return '$' + Number(v).toLocaleString(); if (unit === 'number') return Number(v).toLocaleString(); if (unit === 'score') return `${Math.round(Number(v))}/100`; return v }
+        function change(current, previous, unit) {
+            const c = n(current);
+            const p = n(previous);
+
+            if (c === null || p === null) return '--';
+
+            const diff = c - p;
+            const sign = diff > 0 ? '+' : '';
+
+            if (unit === 'percent') {
+                return `${sign}${diff.toFixed(1).replace(/\.0$/, '')} pts`;
+            }
+
+            if (unit === 'currency') {
+                return `${sign}$${Math.abs(diff).toLocaleString()}`;
+            }
+
+            if (unit === 'score') {
+                return `${sign}${diff.toFixed(1).replace(/\.0$/, '')}`;
+            }
+
+            return `${sign}${diff.toLocaleString()}`;
+        }
+        function latest(key) { const a = grouped[key] || []; return a[a.length - 1] || {} } function previous(key) { const a = grouped[key] || []; return a[a.length - 2] || {} }
+        function bandsForRule(rule) {
+            return bands
+                .filter(b =>
+                    b.index_key === rule.index_key &&
+                    b.component_key === rule.component_key &&
+                    String(b.active || 'Y').toUpperCase() !== 'N'
+                )
+                .sort((a, b) => (n(a.sort_order) ?? 999) - (n(b.sort_order) ?? 999));
+        }
+
+        function matchingBand(value, rule) {
+            const v = n(value);
+            if (v === null) return null;
+
+            return bandsForRule(rule).find(b => {
+                const min = n(b.band_min);
+                const max = n(b.band_max);
+                const aboveMin = min === null || v >= min;
+                const belowMax = max === null || v < max;
+                return aboveMin && belowMax;
+            }) || null;
+        }
+
+        function bandRangeLabel(band, unit = '') {
+            if (!band) return 'No matching band';
+
+            const min = n(band.band_min);
+            const max = n(band.band_max);
+            const suffix = unit === 'percent' ? '%' : '';
+
+            if (min === null && max === null) return 'All values';
+            if (min === null) return `Below ${rawNumber(max)}${suffix}`;
+            if (max === null) return `${rawNumber(min)}${suffix} or higher`;
+            return `${rawNumber(min)}${suffix} to below ${rawNumber(max)}${suffix}`;
+        }
+
+        function score(value, rule, goal) {
+            const v = n(value);
+            if (v === null) return null;
+
+            let s;
+
+            if (rule.scoring_method === 'direct_score') {
+                s = v;
+            } else if (rule.scoring_method === 'band' || rule.scoring_method === 'bands' || rule.scoring_method === 'range') {
+                const band = matchingBand(v, rule);
+                if (!band) return null;
+                s = n(band.band_score);
+                if (s === null) return null;
+            } else if (rule.scoring_method === 'linear') {
+                const min = n(rule.minimum) ?? 0;
+                const max = n(rule.maximum) ?? goal;
+                if (max === null || max === min) return null;
+                s = rule.direction === 'lower'
+                    ? ((max - v) / (max - min)) * 100
+                    : ((v - min) / (max - min)) * 100;
+            } else {
+                if (goal === null) return null;
+                s = rule.direction === 'lower'
+                    ? (v <= 0 ? 100 : (goal / v) * 100)
+                    : (goal === 0 ? 100 : (v / goal) * 100);
+            }
+
+            if (String(rule.cap_at_100).toUpperCase() === 'Y') s = Math.min(100, s);
+            return Math.max(0, s);
+        }
+        function valueAt(key, date) { return (grouped[key] || []).filter(r => r.snapshot_date <= date).at(-1) || null }
+        function calcIndex(indexKey, date, memo = {}, stack = []) { const mk = date + '|' + indexKey; if (mk in memo) return memo[mk]; if (stack.includes(indexKey)) return null; let total = 0, wt = 0; rules.filter(r => r.index_key === indexKey && String(r.active).toUpperCase() !== 'N').forEach(r => { let sc = null; if (r.component_type === 'index') sc = calcIndex(r.component_key, date, memo, [...stack, indexKey]); else { const row = valueAt(r.component_key, date), def = dictionary[r.component_key] || {}; if (row) sc = score(row.value, r, n(def.goal)) } const w = n(r.weight); if (sc !== null && w > 0) { total += sc * w; wt += w } }); memo[mk] = wt ? total / wt : null; return memo[mk] }
+        function buildCalculated() { const dates = [...new Set(rows.map(r => r.snapshot_date))].sort(), keys = [...new Set(rules.map(r => r.index_key))], out = []; dates.forEach(d => { const memo = {}; keys.forEach(k => { const v = calcIndex(k, d, memo); if (v !== null) out.push({ snapshot_date: d, metric_key: k, value: Math.round(v), ...(dictionary[k] || {}), unit: 'score' }) }) }); rows = [...rows, ...out] }
+        function prepare() { settings = Object.fromEntries(settings.map(r => [r.setting_key, r.value])); document.documentElement.style.setProperty('--primary', settings.primary_color || '#2423ad'); document.documentElement.style.setProperty('--accent', settings.accent_color || '#024476'); document.documentElement.style.setProperty('--bg', settings.background_color || '#eef1f6'); dictionary = Object.fromEntries(Object.values(dictionary).map(r => [r.metric_key, r])); rows = rows.map(r => ({ ...r, ...(dictionary[r.metric_key] || {}), snapshot_date: dateNorm(r.snapshot_date) })).filter(r => r.metric_key && r.snapshot_date); rules = rules.map(r => ({ ...r, weight: n(r.weight), minimum: n(r.minimum), maximum: n(r.maximum), component_type: (r.component_type || 'metric').toLowerCase(), direction: (r.direction || 'higher').toLowerCase(), scoring_method: (r.scoring_method || 'target').toLowerCase() })).filter(r => r.index_key && r.component_key); bands = bands.map(b => ({ ...b, index_key: String(b.index_key || '').trim(), component_key: String(b.component_key || '').trim(), band_min: n(b.band_min), band_max: n(b.band_max), band_score: n(b.band_score), sort_order: n(b.sort_order) })).filter(b => b.index_key && b.component_key && b.band_score !== null); narrative = Object.fromEntries(narrative.map(r => [r.key, r.value])); buildGrouped(); buildCalculated(); buildGrouped() }
+        function buildGrouped() { grouped = {}; rows.forEach(r => (grouped[r.metric_key] ??= []).push(r)); Object.values(grouped).forEach(a => a.sort((x, y) => x.snapshot_date.localeCompare(y.snapshot_date))) }
+        function render() { document.title = settings.dashboard_title || 'KPI Dashboard'; document.getElementById('dashboardTitle').textContent = settings.dashboard_title || 'KPI Dashboard'; document.getElementById('dashboardSubtitle').textContent = settings.dashboard_subtitle || ''; document.getElementById('helpButton').lastChild.textContent = ' ' + (settings.help_button_label || 'How Calculated'); const link = document.getElementById('sheetLink'); link.textContent = settings.spreadsheet_label || 'Spreadsheet'; link.href = settings.spreadsheet_url || '#'; link.style.display = settings.spreadsheet_url ? 'inline' : 'none'; const qr = document.getElementById('qrCode'); if (settings.qr_url) qr.src = 'https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=' + encodeURIComponent(settings.qr_url); else qr.style.display = 'none'; document.getElementById('storyTitle').textContent = settings.story_label || 'Dashboard Story'; document.getElementById('boardStory').textContent = narrative.board_story || ''; document.getElementById('storyCard').style.display = narrative.board_story ? 'block' : 'none'; document.getElementById('footerText').textContent = settings.footer_text || ''; renderScores(); renderSections(); renderBriefing(); renderTrend(); renderHelp() }
+        function systemMetrics() { return Object.values(dictionary).filter(d => String(d.section || '').toLowerCase() === 'system' && String(d.show_on_dashboard || 'Y').toUpperCase() !== 'N').sort((a, b) => (n(a.sort_order) ?? 999) - (n(b.sort_order) ?? 999)) }
+        function renderScores() {
+            const box = document.getElementById('scoreRow');
+            const defs = systemMetrics();
+            const preferredOverall = String(settings.overall_index_key || '').trim();
+            const fallbackOverall = defs.find(d => String(d.metric_key || '').toLowerCase().includes('overall'))?.metric_key || defs[0]?.metric_key || '';
+            const overallKey = preferredOverall || fallbackOverall;
+
+            box.innerHTML = defs.map(d => {
+                const r = latest(d.metric_key);
+                const v = n(r.value) || 0;
+                const isOverall = d.metric_key === overallKey;
+                const indexInfo = infoForIndex(d.metric_key);
+                const titleHtml = indexInfo
+                    ? `<button type="button"
+                                               class="score-label info-title-link"
+                                               title="Explain this index"
+                                               aria-label="Explain ${esc(indexInfo.title)}"
+                                               data-index-info-key="${esc(d.metric_key)}">
+                                       <span>${esc(d.metric_label)}</span>
+                                       <i class="fa-solid fa-circle-info info-cue" aria-hidden="true"></i>
+                                   </button>`
+                    : `<div class="score-label">${esc(d.metric_label)}</div>`;
+
+                return `<div class="score-card ${isOverall ? 'overall' : ''}" data-index-key="${esc(d.metric_key)}" onclick="toggleDetail('${esc(d.metric_key)}')"><div class="score-label-row">${titleHtml}</div><div class="score-value">${esc(display(r.value, 'score'))}</div><div class="meter"><div class="meter-fill" style="width:${Math.max(0, Math.min(100, v))}%"></div></div><div class="score-note">${esc(d.sub || '')}</div></div>`;
+            }).join('');
+
+            box.querySelectorAll('[data-index-info-key]').forEach(button => {
+                button.addEventListener('click', event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const key = button.dataset.indexInfoKey;
+                    const indexInfo = infoForIndex(key);
+
+                    if (indexInfo) {
+                        toggleInfoDrawer(
+                            'index:' + key,
+                            indexInfo.title,
+                            indexInfo.info,
+                            indexInfo.type,
+                            event
+                        );
+                    }
+                });
+            });
+        }
+        function renderSections() {
+            const grid = document.getElementById('dashboardGrid');
+            const activeSections = sections
+                .filter(s => String(s.section_key || '').trim())
+                .filter(s => String(s.show_on_dashboard || 'Y').toUpperCase() !== 'N')
+                .sort((a, b) => (n(a.sort_order) ?? 999) - (n(b.sort_order) ?? 999));
+            grid.className = 'dashboard-grid sections-' + Math.min(activeSections.length, 6);
+            grid.innerHTML = activeSections.map(sec => {
+                const defs = Object.values(dictionary)
+                    .filter(d => String(d.section || '').trim() === String(sec.section_key || '').trim())
+                    .filter(d => String(d.show_on_dashboard || 'Y').toUpperCase() !== 'N')
+                    .sort((a, b) => (n(a.sort_order) ?? 999) - (n(b.sort_order) ?? 999));
+                const items = defs.map(d => {
+                    const c = latest(d.metric_key);
+                    const p = previous(d.metric_key);
+                    const hasInfo = String(d.info || '').trim() !== '';
+                    const metricTitle = hasInfo
+                        ? `<button type="button"
+                                                   class="kpi-title metric-title-link info-title-link"
+                                                   title="Explain this metric"
+                                                   aria-label="Explain ${esc(d.metric_label)}"
+                                                   data-metric-info-key="${esc(d.metric_key)}">${esc(d.metric_label)} <i class="fa-solid fa-circle-info info-cue" aria-hidden="true"></i></button>`
+                        : `<div class="kpi-title">${esc(d.metric_label)}</div>`;
+
+                    return `<div class="kpi-row"><div class="kpi-icon"><i class="fa-solid ${esc(d.icon || 'fa-circle-info')}"></i></div><div><div class="kpi-title-row">${metricTitle}</div><div class="kpi-sub">${esc(d.sub || '')}</div><div class="kpi-compare"><div><div class="compare-label">Previous</div><div class="compare-value">${esc(display(p.value, d.unit))}</div></div><div><div class="compare-label">Goal</div><div class="compare-value">${esc(display(d.goal, d.unit))}</div></div><div><div class="compare-label">Change</div><div class="compare-value">${esc(change(c.value, p.value, d.unit))}</div></div></div></div><div class="kpi-value"><div>${esc(display(c.value, d.unit))}</div><div class="kpi-asof">As of ${esc(fmtDate(c.snapshot_date))}</div></div></div>`;
+                }).join('');
+                const callout = narrative[sec.section_key + '_callout'] || '';
+                const sectionInfo = String(sec.info || '').trim();
+                const sectionTitle = sectionInfo
+                    ? `<button type="button"
+                                               class="section-title-link info-title-link"
+                                               title="Explain this section"
+                                               aria-label="Explain ${esc(sec.section_label || sec.section_key)}"
+                                               data-section-info-key="${esc(sec.section_key)}"><i class="fa-solid ${esc(sec.icon || 'fa-chart-column')}"></i> <span>${esc(sec.section_label || sec.section_key)}</span> <i class="fa-solid fa-circle-info info-cue" aria-hidden="true"></i></button>`
+                    : `<h3><i class="fa-solid ${esc(sec.icon || 'fa-chart-column')}"></i> ${esc(sec.section_label || sec.section_key)}</h3>`;
+
+                return `<article class="section-card"><div class="section-title-row">${sectionTitle}</div><p class="section-question">${esc(sec.question || '')}</p><div class="kpi-list">${items || '<div class="kpi-sub">No active KPIs are assigned to this section.</div>'}</div>${callout ? `<div class="callout">${esc(callout)}</div>` : ''}</article>`;
+            }).join('');
+        }
+        function detailNumber(value, decimals = 1) { const x = n(value); return x === null ? '--' : x.toLocaleString('en-US', { maximumFractionDigits: decimals, minimumFractionDigits: decimals }) }
+        function rawNumber(value) { const x = n(value); return x === null ? '--' : x.toLocaleString('en-US', { maximumFractionDigits: 2 }) }
+        function directionLabel(rule) {
+            if (['band', 'bands', 'range'].includes(rule.scoring_method)) return 'Band scoring';
+            if (rule.scoring_method === 'direct_score') return 'Direct score';
+            if (rule.scoring_method === 'linear') return rule.direction === 'lower' ? 'Linear: lower is better' : 'Linear: higher is better';
+            return rule.direction === 'lower' ? 'Lower is better' : 'Higher is better';
+        }
+
+        function scoreMath(value, rule, goal, componentScore, unit = '') {
+            const v = n(value);
+            const g = n(goal);
+            if (v === null || componentScore === null) return '';
+
+            if (['band', 'bands', 'range'].includes(rule.scoring_method)) {
+                const band = matchingBand(v, rule);
+                if (!band) return 'No matching scoring band.';
+                const label = String(band.band_label || '').trim();
+                const range = bandRangeLabel(band, unit);
+                return `${esc(label || range)} (${esc(range)}) = <strong>${detailNumber(componentScore)}</strong>`;
+            }
+
+            if (rule.scoring_method === 'direct_score') {
+                return `${rawNumber(v)} used directly = <strong>${detailNumber(componentScore)}</strong>`;
+            }
+
+            if (rule.scoring_method === 'linear') {
+                const min = n(rule.minimum) ?? 0;
+                const max = n(rule.maximum) ?? g;
+                if (max === null) return '';
+                return rule.direction === 'lower'
+                    ? `(${rawNumber(max)} − ${rawNumber(v)}) ÷ (${rawNumber(max)} − ${rawNumber(min)}) × 100 = <strong>${detailNumber(componentScore)}</strong>`
+                    : `(${rawNumber(v)} − ${rawNumber(min)}) ÷ (${rawNumber(max)} − ${rawNumber(min)}) × 100 = <strong>${detailNumber(componentScore)}</strong>`;
+            }
+
+            if (g === null) return '';
+            return rule.direction === 'lower'
+                ? `${rawNumber(g)} ÷ ${rawNumber(v)} × 100 = <strong>${detailNumber(componentScore)}</strong>`
+                : `${rawNumber(v)} ÷ ${rawNumber(g)} × 100 = <strong>${detailNumber(componentScore)}</strong>`;
+        }
+        function destroyDetailCharts() { detailCharts.forEach(c => c.destroy()); detailCharts = [] }
+
+        function sectionForIndex(indexKey) {
+            const metricRule = rules.find(r =>
+                r.index_key === indexKey &&
+                String(r.active || 'Y').toUpperCase() !== 'N' &&
+                r.component_type !== 'index'
+            );
+
+            if (!metricRule) return null;
+
+            const componentDef = dictionary[metricRule.component_key] || {};
+            const sectionKey = String(componentDef.section || '').trim();
+
+            if (!sectionKey || sectionKey.toLowerCase() === 'system') return null;
+
+            return sections.find(s =>
+                String(s.section_key || '').trim() === sectionKey
+            ) || null;
+        }
+
+        function infoForIndex(indexKey) {
+            const indexDef = dictionary[indexKey] || {};
+            const indexInfo = String(indexDef.info || '').trim();
+
+            if (indexInfo) {
+                return {
+                    title: indexDef.metric_label || indexKey,
+                    info: indexInfo,
+                    type: 'Index information'
+                };
+            }
+
+            const section = sectionForIndex(indexKey);
+            const sectionInfo = String(section?.info || '').trim();
+
+            if (!sectionInfo) return null;
+
+            return {
+                title: section.section_label || section.section_key,
+                info: sectionInfo,
+                type: 'Section information'
+            };
+        }
+
+        function showDetail(key) {
+            const def = dictionary[key] || {}, date = latest(key).snapshot_date;
+            document.getElementById('detailTitle').textContent = (def.metric_label || key) + ' Detail';
+            document.getElementById('detailSub').textContent = 'How the score is calculated, followed by supporting metric trends.';
+
+            const rs = rules.filter(r => r.index_key === key && String(r.active || 'Y').toUpperCase() !== 'N').sort((a, b) => (n(a.sort_order) || 99) - (n(b.sort_order) || 99));
+            const parts = [];
+            rs.forEach(r => { const d = dictionary[r.component_key] || {}; let row = null, current = null, sc = null; if (r.component_type === 'index') { current = calcIndex(r.component_key, date); sc = current } else { row = valueAt(r.component_key, date); current = row?.value; sc = row ? score(row.value, r, n(d.goal)) : null } if (sc !== null) parts.push({ rule: r, def: d, row, current, score: sc }) });
+            const totalWeight = parts.reduce((sum, p) => sum + (n(p.rule.weight) || 0), 0);
+            const indexScore = calcIndex(key, date);
+            const cards = parts.map(p => {
+                const normalizedWeight = totalWeight
+                    ? (n(p.rule.weight) || 0) / totalWeight * 100
+                    : 0;
+
+                const contribution = p.score * normalizedWeight / 100;
+                const unit = p.def.unit ||
+                    (p.rule.component_type === 'index' ? 'score' : 'number');
+
+                const currentDisplay = display(p.current, unit);
+                const isBandMethod = ['band', 'bands', 'range'].includes(p.rule.scoring_method);
+                const goalDisplay = p.rule.component_type === 'index'
+                    ? '--'
+                    : isBandMethod
+                        ? 'See scoring band'
+                        : display(p.def.goal, unit);
+
+                const asOf = p.row?.snapshot_date
+                    ? `<div class="calculation-date">${esc(fmtDate(p.row.snapshot_date))}</div>`
+                    : '';
+
+                const hasInfo = String(p.def.info || '').trim() !== '';
+                const componentTitle = hasInfo
+                    ? `<button type="button"
+                                               class="calculation-item-title calculation-title-link info-title-link"
+                                               title="Explain this metric"
+                                               aria-label="Explain ${esc(p.def.metric_label || p.rule.component_key)}"
+                                               data-metric-info-key="${esc(p.rule.component_key)}">${esc(p.def.metric_label || p.rule.component_key)} <i class="fa-solid fa-circle-info info-cue" aria-hidden="true"></i></button>`
+                    : `<div class="calculation-item-title">${esc(p.def.metric_label || p.rule.component_key)}</div>`;
+
+                return `<div class="calculation-item">
+                                            <div class="calculation-item-title-row">
+                                                ${componentTitle}
+                                            </div>
+                                            <div class="calculation-line">
+                                                <span>Current</span>
+                                                <strong>${esc(currentDisplay)}${asOf}</strong>
+                                            </div>
+                                            <div class="calculation-line">
+                                                <span>Goal</span>
+                                                <strong>${esc(goalDisplay)}</strong>
+                                            </div>
+                                            <div class="calculation-line">
+                                                <span>Weight</span>
+                                                <strong>${detailNumber(normalizedWeight, 0)}%</strong>
+                                            </div>
+                                            <div class="calculation-line">
+                                                <span>Method</span>
+                                                <strong>${esc(directionLabel(p.rule))}</strong>
+                                            </div>
+                                            <div class="calculation-score">
+                                                <span>Component score</span>
+                                                <strong>${detailNumber(p.score)}</strong>
+                                            </div>
+                                            <div class="calculation-math">
+                                                ${scoreMath(p.current, p.rule, p.def.goal, p.score, unit)}
+                                            </div>
+                                            <div class="calculation-contribution">
+                                                <div class="calculation-line">
+                                                    <span>Weighted contribution</span>
+                                                    <strong>${detailNumber(contribution)} pts</strong>
+                                                </div>
+                                                <div class="calculation-math">
+                                                    ${detailNumber(p.score)} × ${detailNumber(normalizedWeight, 0)}% =
+                                                    <strong>${detailNumber(contribution)}</strong>
+                                                </div>
+                                            </div>
+                                        </div>`;
+            }).join('');
+            document.getElementById('indexCalculationBreakdown').innerHTML = `<div class="calculation-summary"><div><div class="calculation-summary-label">Calculated from ${parts.length} weighted component${parts.length === 1 ? '' : 's'}</div><div class="calculation-summary-title">${esc(def.metric_label || key)}</div></div><div class="calculation-summary-value">${indexScore === null ? '--' : Math.round(indexScore) + '/100'}</div></div><div class="calculation-grid">${cards}</div><div class="calculation-formula">Index = sum of each component score × its normalized weight. Target goals come from Metric_Dictionary; band-scored components use Index_Bands. When component metrics have different update dates, the most recent value available on or before the index date is used. Component scores are capped at 100 when the rule says to cap them.</div>`;
+
+            document
+                .querySelectorAll('#indexCalculationBreakdown [data-metric-info-key]')
+                .forEach(button => {
+                    button.addEventListener('click', event => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        toggleMetricInfo(button.dataset.metricInfoKey, event);
+                    });
+
+                    button.addEventListener('touchend', event => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        toggleMetricInfo(button.dataset.metricInfoKey, event);
+                    }, { passive: false });
+                });
+
+            renderDetailCharts(parts);
+
+            const detailCard = document.getElementById('detailCard');
+            detailCard.hidden = false;
+
+            if (window.innerWidth <= 700) {
+                detailCard.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+        function renderDetailCharts(parts) {
+            destroyDetailCharts(); const grid = document.getElementById('detailChartGrid'); grid.innerHTML = parts.map((p, i) => `<div class="detail-mini-chart"><div class="detail-mini-chart-title">${esc(p.def.metric_label || p.rule.component_key)}</div><canvas id="detailChart${i}" height="170"></canvas></div>`).join(''); parts.forEach((p, i) => {
+                const list = grouped[p.rule.component_key] || []; const unit = p.def.unit || 'number'; const c = new Chart(document.getElementById('detailChart' + i), {
+                    type: 'line', data: { labels: list.map(r => r.snapshot_date), datasets: [{ label: p.def.metric_label || p.rule.component_key, data: list.map(r => n(r.value)), tension: .25 }] }, options: {
+                        responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
+                            y: {
+                                beginAtZero: unit !== 'score' && unit !== 'percent',
+                                min: unit === 'score' || unit === 'percent' ? 0 : undefined,
+                                max: unit === 'score' || unit === 'percent' ? 100 : undefined,
+                                ticks: {
+                                    callback: value => {
+                                        if (unit === 'percent') return value + '%';
+                                        if (unit === 'score') return value + '/100';
+                                        if (unit === 'currency') {
+                                            return '$' + Number(value).toLocaleString();
+                                        }
+                                        return Number(value).toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }); detailCharts.push(c)
+            })
+        }
+        function hideDetail() {
+            document.getElementById('detailCard').hidden = true;
+            destroyDetailCharts();
+
+            activeIndexKey = null;
+
+            document.querySelectorAll('.score-card[data-index-key]')
+                .forEach(card => card.classList.remove('active-index'));
+        }
+        function renderBriefing() {
+            const visibleBriefs = briefing
+                .filter(b => String(b.show_on_dashboard || 'Y').toUpperCase() !== 'N')
+                .sort((a, b) => dateNorm(b.event_date).localeCompare(dateNorm(a.event_date)));
+
+            const showBriefing = String(settings.show_briefing || 'Y').toUpperCase() === 'Y';
+            const summaryCard = document.getElementById('briefingSummaryCard');
+
+            summaryCard.style.display = showBriefing ? 'flex' : 'none';
+            document.getElementById('briefingSummaryLabel').textContent =
+                settings.briefing_label || 'Briefing';
+            document.getElementById('briefingSummaryCount').textContent =
+                visibleBriefs.length + (visibleBriefs.length === 1 ? ' Item' : ' Items');
+            document.getElementById('briefingSummarySubtitle').textContent =
+                settings.briefing_subtitle || '';
+
+            document.getElementById('briefTitle').textContent =
+                settings.briefing_label || 'Briefing';
+            document.getElementById('briefSubtitle').textContent =
+                settings.briefing_subtitle || '';
+
+            document.getElementById('briefGrid').innerHTML = visibleBriefs
+                .map(b => `<div class="brief-item"><div class="brief-meta"><span>${esc(b.category)}</span><span>${esc(fmtDate(b.event_date))}</span></div><div class="brief-title">${esc(b.title)}</div><div class="brief-details">${esc(b.details)}</div></div>`)
+                .join('');
+        }
+
+        function showBriefing() {
+            const briefCard = document.getElementById('briefCard');
+            briefCard.hidden = false;
+
+            if (window.innerWidth <= 700) {
+                briefCard.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        function hideBriefing() {
+            document.getElementById('briefCard').hidden = true;
+        }
+        function renderTrend() { const card = document.getElementById('trendCard'); if (String(settings.show_trend || 'Y').toUpperCase() === 'N') { card.style.display = 'none'; return } const defs = systemMetrics(), dates = [...new Set(rows.filter(r => defs.some(d => d.metric_key === r.metric_key)).map(r => r.snapshot_date))].sort(); const datasets = defs.map(d => ({ label: d.metric_label, data: dates.map(dt => (grouped[d.metric_key] || []).find(r => r.snapshot_date === dt)?.value ?? null), tension: .25 })); chart = new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: dates, datasets }, options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { min: 0, max: 100 } } } }) }
+        function renderHelp() { const sectionsHtml = sections.filter(s => String(s.show_on_dashboard).toUpperCase() !== 'N').map(s => `<p><strong>${esc(s.section_label)}:</strong> ${esc(s.question || '')}</p>`).join(''); document.getElementById('helpBody').innerHTML = `<section class="help-section"><h3>About this dashboard</h3><p>All labels, colors, sections, KPIs, goals, narratives, briefing items, and calculations come from the spreadsheet. Add or remove section rows and system index rows without changing this HTML file.</p></section><section class="help-section"><h3>Component score</h3><p>Index_Rules selects the scoring method. Target scoring compares current value with a goal. Linear scoring uses a defined minimum and maximum. Band scoring assigns a score from the matching Index_Bands range. Scores may be capped at 100.</p></section><section class="help-section"><h3>Current sections</h3>${sectionsHtml}</section><section class="help-section"><h3>Data model</h3><p>Dashboard_Settings controls appearance. Sections controls groups. Metric_Dictionary defines KPIs. Dashboard_Values stores dated values. Index_Rules defines calculations. Index_Bands defines ranges for band-scored components.</p></section>` }
+        function toggleHelp() { document.getElementById('helpDrawer').classList.toggle('open'); document.getElementById('drawerBackdrop').classList.toggle('open') }
+        function closeHelp() { document.getElementById('helpDrawer').classList.remove('open'); document.getElementById('drawerBackdrop').classList.remove('open') }
+
+        function toggleMetricInfo(metricKey, event = null) {
+            event?.preventDefault();
+            event?.stopPropagation();
+
+            const metric = dictionary[metricKey] || {};
+            const info = String(metric.info || '').trim();
+
+            if (!info) return;
+
+            toggleInfoDrawer(
+                'metric:' + metricKey,
+                metric.metric_label || metricKey,
+                info,
+                'Metric information',
+                event
+            );
+        }
+
+        function toggleInfoDrawer(infoKey, title, info, typeLabel, event) {
+            event?.stopPropagation();
+
+            const drawer = document.getElementById('metricInfoDrawer');
+
+            if (drawer.classList.contains('open') && activeMetricInfoKey === infoKey) {
+                closeMetricInfo();
+                return;
+            }
+
+            activeMetricInfoKey = infoKey;
+            document.getElementById('metricInfoType').textContent = typeLabel || 'Information';
+            document.getElementById('metricInfoTitle').textContent = title;
+            document.getElementById('metricInfoText').textContent = String(info || '').trim();
+            drawer.classList.add('open');
+            drawer.setAttribute('aria-hidden', 'false');
+            document.getElementById('metricInfoBackdrop').classList.add('open');
+        }
+
+        function closeMetricInfo() {
+            activeMetricInfoKey = null;
+            document.getElementById('metricInfoDrawer').classList.remove('open');
+            document.getElementById('metricInfoDrawer').setAttribute('aria-hidden', 'true');
+            document.getElementById('metricInfoBackdrop').classList.remove('open');
+        }
+
+        document.addEventListener('click', event => {
+            const indexButton = event.target.closest('[data-index-info-key]');
+
+            if (indexButton) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const key = indexButton.dataset.indexInfoKey;
+                const indexInfo = infoForIndex(key);
+
+                if (indexInfo) {
+                    toggleInfoDrawer(
+                        'index:' + key,
+                        indexInfo.title,
+                        indexInfo.info,
+                        indexInfo.type,
+                        event
+                    );
+                }
+                return;
+            }
+
+            const sectionLink = event.target.closest('[data-section-info-key]');
+
+            if (sectionLink) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const key = sectionLink.dataset.sectionInfoKey;
+                const section = sections.find(s =>
+                    String(s.section_key || '').trim() === String(key || '').trim()
+                );
+                const info = String(section?.info || '').trim();
+
+                if (section && info) {
+                    toggleInfoDrawer(
+                        'section:' + key,
+                        section.section_label || section.section_key,
+                        info,
+                        'Section information',
+                        event
+                    );
+                }
+                return;
+            }
+
+            const metricButton = event.target.closest('[data-metric-info-key]');
+
+            if (!metricButton) return;
+            if (metricButton.closest('#indexCalculationBreakdown')) return;
+
+            toggleMetricInfo(
+                metricButton.dataset.metricInfoKey,
+                event
+            );
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') { closeMetricInfo(); closeHelp(); }
+        });
+
+        async function init() { try { [settings, sections, dictRows, rows, rules, bands, narrative, briefing] = await Promise.all([fetchCsv(SETTINGS_CSV_URL), fetchCsv(SECTIONS_CSV_URL), fetchCsv(DICTIONARY_CSV_URL), fetchCsv(VALUES_CSV_URL), fetchCsv(RULES_CSV_URL), fetchOptionalCsv(INDEX_BANDS_CSV_URL), fetchCsv(NARRATIVE_CSV_URL), fetchCsv(BRIEFING_CSV_URL)]); dictionary = dictRows; prepare(); render() } catch (e) { document.querySelector('.page').innerHTML = `<div class="card"><h2>Dashboard could not load</h2><p>${esc(e.message)}</p><p>Publish each worksheet as CSV and replace the worksheet URL placeholders near the top of the script.</p></div>` } }
+
+
+        function toggleDetail(key) {
+            const detailCard = document.getElementById('detailCard');
+
+            if (activeIndexKey === key && !detailCard.hidden) {
+                hideDetail();
+                return;
+            }
+
+            activeIndexKey = key;
+
+            document.querySelectorAll('.score-card[data-index-key]')
+                .forEach(card => {
+                    card.classList.toggle(
+                        'active-index',
+                        card.dataset.indexKey === key
+                    );
+                });
+
+            showDetail(key);
+        }
+
+
+        init();
+    </script>
+</body>
+</html>
