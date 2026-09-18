@@ -1,0 +1,48 @@
+name: Build Dashboard Data
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - "source/*.xlsx"
+      - "scripts/build-dashboard.ps1"
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ImportExcel
+        shell: powershell
+        run: |
+          Install-Module ImportExcel -Scope CurrentUser -Force
+
+      - name: Build dashboard CSV
+        shell: powershell
+        run: |
+          .\scripts\build-dashboard.ps1
+
+      - name: Commit generated CSV
+        shell: powershell
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add data/dashboard.csv
+
+          $changes = git status --porcelain
+
+          if ($changes) {
+              git commit -m "Update dashboard data"
+              git push
+          }
+          else {
+              Write-Host "No dashboard data changes."
+          }
