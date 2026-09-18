@@ -19,6 +19,49 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ------------------------------------------------------------
+      # TEST: Download the live workbook from OneDrive
+      #
+      # For now this downloads to a DIFFERENT filename.
+      # It does NOT replace the workbook currently used by
+      # build-dashboard.ps1.
+      # ------------------------------------------------------------
+      - name: Test OneDrive workbook download
+        shell: powershell
+        run: |
+          $shareUrl = "https://1drv.ms/x/c/fab34f487a90a5a5/IQBAwG2d0_CZRY1VAPEmRbkiAX4Oe7vibhSFJk7lK499z74?e=MxJNOn"
+
+          $downloadUrl = $shareUrl + "&download=1"
+
+          Write-Host ""
+          Write-Host "OneDrive Download Test"
+          Write-Host "----------------------"
+          Write-Host "Downloading workbook..."
+
+          Invoke-WebRequest `
+            -Uri $downloadUrl `
+            -OutFile "source/NDGTS_OneDrive_Test.xlsx"
+
+          if (-not (Test-Path "source/NDGTS_OneDrive_Test.xlsx")) {
+              throw "OneDrive workbook was not downloaded."
+          }
+
+          $file = Get-Item "source/NDGTS_OneDrive_Test.xlsx"
+
+          Write-Host ""
+          Write-Host "Downloaded:"
+          Write-Host $file.FullName
+          Write-Host ""
+          Write-Host "File size:"
+          Write-Host $file.Length "bytes"
+          Write-Host ""
+
+          if ($file.Length -lt 10000) {
+              throw "Downloaded file is unexpectedly small. It may not be the Excel workbook."
+          }
+
+          Write-Host "OneDrive workbook download looks good."
+
       - name: Install ImportExcel
         shell: powershell
         run: |
@@ -35,7 +78,11 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add data/dashboard.csv data/narrative.csv data/board_briefing.csv data/index_rules.csv data/metric_dictionary.csv
+          git add data/dashboard.csv
+          git add data/narrative.csv
+          git add data/board_briefing.csv
+          git add data/index_rules.csv
+          git add data/metric_dictionary.csv
 
           $changes = git status --porcelain
 
