@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>North Dakota State Science Center - Board Dashboard</title>
+    <title>North Dakota's Gateway to Science - Board Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -199,6 +199,27 @@
             white-space: nowrap;
         }
 
+        .kpi-value-wrap {
+            text-align: right;
+            min-width: 110px;
+        }
+
+        .kpi-asof {
+            margin-top: 3px;
+            font-size: 10px;
+            font-weight: 400;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .calculation-date {
+            margin-top: 1px;
+            font-size: 10px;
+            font-weight: 400;
+            color: var(--muted);
+            text-align: right;
+        }
+
         .callout {
             margin-top: 12px;
             background: #f7fbff;
@@ -292,6 +313,107 @@
             line-height: 1;
             padding: 4px 10px;
             cursor: pointer;
+        }
+
+        .index-calculation {
+            margin-bottom: 14px;
+        }
+
+        .calculation-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            border: 1px solid #b8d6ee;
+            border-left: 6px solid var(--blue);
+            border-radius: 10px;
+            background: #f7fbff;
+        }
+
+        .calculation-summary-label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .calculation-summary-value {
+            font-size: 30px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .calculation-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .calculation-item {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 11px;
+            background: #fff;
+        }
+
+        .calculation-item-title {
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .calculation-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 3px 0;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .calculation-line strong {
+            color: var(--text);
+            text-align: right;
+        }
+
+        .calculation-score {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8eef4;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .calculation-score strong {
+            font-size: 22px;
+        }
+
+        .calculation-formula {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .calculation-math {
+            margin-top: 3px;
+            font-size: 11px;
+            line-height: 1.25;
+            color: var(--muted);
+            text-align: right;
+            font-weight: 400;
+        }
+
+        .calculation-math strong {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .calculation-contribution {
+            margin-top: 7px;
+            padding-top: 7px;
+            border-top: 1px dashed #e1e8ef;
         }
 
         .detail-chart-grid {
@@ -414,6 +536,74 @@
             .archive-row:first-child {
                 border-top: 0;
             }
+.header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .sheet-link {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: underline;
+            white-space: nowrap;
+        }
+
+        .how-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 1px solid rgba(255,255,255,.65);
+            background: rgba(255,255,255,.14);
+            color: #fff;
+            border-radius: 9px;
+            padding: 9px 12px;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .how-button:hover {
+            background: rgba(255,255,255,.24);
+        }
+
+        @media(max-width:900px) {
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+        }
+        .help-drawer-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:19990;display:none}
+        .help-drawer-backdrop.open{display:block}
+        .help-drawer{position:fixed;top:0;right:-520px;width:500px;max-width:94vw;height:100vh;background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 30px rgba(15,23,42,.2);z-index:20000;transition:right .22s ease;display:flex;flex-direction:column}
+        .help-drawer.open{right:0}
+        .help-drawer-head{padding:14px 16px;border-bottom:1px solid var(--line);border-left:6px solid var(--blue);background:#f8fbfe;display:flex;justify-content:space-between;gap:12px}
+        .help-drawer-head h2{margin:0 0 4px;font-size:19px}
+        .help-drawer-head p{margin:0;color:var(--muted);font-size:12px}
+        .help-drawer-close{border:1px solid var(--line);background:#fff;border-radius:8px;font-size:21px;line-height:1;padding:4px 10px;cursor:pointer}
+        .help-drawer-body{overflow-y:auto;padding:14px}
+        .help-section{border:1px solid var(--line);border-radius:11px;padding:12px;margin-bottom:12px;background:#fff}
+        .help-section h3{margin:0 0 8px;font-size:15px;color:var(--blue)}
+        .help-section p{margin:0 0 8px;font-size:13px;line-height:1.45}
+        .help-formula{text-align:center;background:#f7fbff;border:1px solid #d7e9f8;border-radius:9px;padding:10px;margin:8px 0;font-weight:800}
+        .help-live-row{border-top:1px solid #edf2f7;padding-top:8px;margin-top:8px}
+        .help-live-row:first-child{border-top:0;padding-top:0;margin-top:0}
+        .help-live-title{font-weight:800;font-size:13px;margin-bottom:5px}
+        .help-live-values{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+        .help-live-values>div,.help-goal-item,.help-dev-item{background:#f8fbfe;border:1px solid #e1ebf3;border-radius:7px;padding:6px}
+        .help-live-label,.help-dev-label{font-size:10px;color:var(--muted);margin-bottom:2px}
+        .help-live-value,.help-dev-value{font-size:12px;font-weight:800}
+        .help-rule-group{margin-top:10px}.help-rule-group:first-child{margin-top:0}
+        .help-rule-title{font-weight:800;margin-bottom:6px}
+        .help-rule-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding:5px 0;border-top:1px solid #edf2f7;font-size:12px}
+        .help-goal-grid,.help-dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .help-goal-name{font-size:12px;font-weight:800}
+        .help-goal-value{margin-top:3px;font-size:16px;font-weight:800;color:var(--blue)}
+        .help-developer summary{cursor:pointer;font-weight:800;color:var(--blue)}
+        .help-dev-grid{margin-top:10px}
 
         .dashboard-qr {
             display: flex;
@@ -444,7 +634,8 @@
         }
 
         @media(max-width:900px) {
-            .detail-chart-grid {
+            .detail-chart-grid,
+            .calculation-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -499,6 +690,98 @@
                 box-shadow: 0 10px 30px rgba(0,0,0,.25);
             }
         }
+    
+        .how-button {
+            position: fixed;
+            top: 18px;
+            right: 105px;
+            z-index: 21010;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 2px solid #ffffff;
+            background: #f4b400;
+            color: #102a43;
+            border-radius: 9px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+            box-shadow: 0 3px 10px rgba(0,0,0,.25);
+            cursor: pointer;
+        }
+
+        .how-button:hover {
+            background: #ffd45c;
+        }
+
+        @media(max-width:700px) {
+            .how-button {
+                top: 10px;
+                right: 10px;
+            }
+
+            .dashboard-qr {
+                display: none;
+            }
+        }
+
+    
+        /* Final header placement for the calculation guide button */
+        .header {
+            align-items: center;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-left: auto;
+        }
+
+        .how-button {
+            position: static !important;
+            top: auto !important;
+            right: auto !important;
+            z-index: auto !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 1px solid rgba(255,255,255,.65);
+            background: rgba(255,255,255,.14);
+            color: #fff;
+            border-radius: 9px;
+            padding: 9px 12px;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+            box-shadow: none;
+            cursor: pointer;
+        }
+
+        .how-button:hover {
+            background: rgba(255,255,255,.24);
+        }
+
+        @media(max-width:900px) {
+            .header {
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                margin-left: 0;
+            }
+        }
+
+        @media(max-width:700px) {
+            .how-button {
+                position: static !important;
+            }
+        }
+
     </style>
 </head>
 
@@ -506,22 +789,79 @@
 
     <div class="header">
         <div>
-            <h1>North Dakota State Science Center - Board Dashboard</h1>
+            <h1>North Dakota's Gateway to Science - Board Dashboard</h1>
             <div class="subtitle">Mission Impact · Financial Strength · Sustainability</div>
         </div>
+
         <div class="subtitle" style="display:none;" id="lastUpdated">Loading...</div>
 
-        <div><a href="https://docs.google.com/spreadsheets/d/1xoloIlvpnR_yJNoX-Gwz-IugcsoNuF46cP3YTGFQl0k/edit?gid=1752322111#gid=1752322111" target="_blank">Sheet1</a>.</div>
-        
-        <div class="dashboard-qr">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=https://durows.github.io/ndgs/connect4.html"
-                    alt="QR code">
-                
+        <div class="header-actions">
+            <a class="sheet-link"
+               href="https://docs.google.com/spreadsheets/d/18BuRnby6xV4PrZok1Zo8SqeeXlu68E2FWiYAfKsIqlM/edit?usp=sharing"
+               target="_blank">
+                Spreadsheet
+            </a>
+
+            <button type="button" class="how-button" onclick="toggleHelpDrawer()">
+                <i class="fa-solid fa-circle-question"></i>
+                How Calculated
+            </button>
+
+            <div class="dashboard-qr">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=https://durows.github.io/ndgs/connect4c.html"
+                     alt="QR code">
+            </div>
         </div>
-        
-        
-        
     </div>
+
+
+    <div class="help-drawer-backdrop" id="helpDrawerBackdrop" onclick="closeHelpDrawer()"></div>
+    <aside class="help-drawer" id="helpDrawer" aria-hidden="true">
+        <div class="help-drawer-head">
+            <div>
+                <h2>How is this dashboard calculated?</h2>
+                <p>Live documentation generated from current values, goals, and rules.</p>
+            </div>
+            <button type="button" class="help-drawer-close" onclick="closeHelpDrawer()">×</button>
+        </div>
+        <div class="help-drawer-body">
+            <section class="help-section">
+                <h3>Why indexes?</h3>
+                <p>Mission Impact, Financial Strength, and Sustainability summarize groups of related measures. Those three indexes combine into Overall Organizational Health.</p>
+            </section>
+            <section class="help-section">
+                <h3>Component score</h3>
+                <p>For a metric where higher is better:</p>
+                <div class="help-formula">Current value ÷ Goal × 100</div>
+                <p>For lower-is-better metrics, the formula is reversed. Scores are capped at 100 when the rule requires it.</p>
+            </section>
+            <section class="help-section">
+                <h3>Live Mission calculation</h3>
+                <div id="helpLiveCalculation"></div>
+            </section>
+            <section class="help-section">
+                <h3>Current index rules</h3>
+                <div id="helpCurrentRules"></div>
+            </section>
+            <section class="help-section">
+                <h3>Current goals</h3>
+                <div id="helpCurrentGoals" class="help-goal-grid"></div>
+            </section>
+            <section class="help-section">
+                <h3>Where the data lives</h3>
+                <p><strong>Dashboard Values</strong> stores dated values.</p>
+                <p><strong>Metric Dictionary</strong> stores labels, units, descriptions, and goals.</p>
+                <p><strong>Index Rules</strong> stores weights, direction, and scoring behavior.</p>
+                <p>Every score is recalculated whenever the dashboard loads.</p>
+            </section>
+            <section class="help-section">
+                <details class="help-developer">
+                    <summary>Developer information</summary>
+                    <div class="help-dev-grid" id="helpDeveloperInfo"></div>
+                </details>
+            </section>
+        </div>
+    </aside>
 
     <div class="page">
 
@@ -576,6 +916,7 @@
                 <button type="button" class="detail-close" onclick="hideIndexDetail()">×</button>
             </div>
 
+            <div class="index-calculation" id="indexCalculationBreakdown"></div>
             <div class="detail-chart-grid" id="detailChartGrid"></div>
         </div>
         <div class="card briefing-card" id="boardBriefingCard" style="display:none;">
@@ -632,54 +973,69 @@
     </div>
 
     <script>
-       
+        const DATA_CSV_URL = './data/dashboard.csv';
+        const NARRATIVE_CSV_URL = './data/narrative.csv';
+        const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
+        const INDEX_RULES_CSV_URL = './data/index_rules.csv';
+        // Metric_Dictionary is the single source of truth for goals and metric metadata.
+        const METRIC_DICTIONARY_CSV_URL = './data/metric_dictionary.csv';
 
-const DATA_CSV_URL = './data/dashboard.csv';
-
-const NARRATIVE_CSV_URL = './data/narrative.csv';
-
-const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
-
-      
         let dashboardRows = [];
         let dashboardGrouped = {};
         let detailCharts = [];
 
         let briefingRows = [];
+        let indexRules = [];
+        let metricDictionary = {};
 
-            function csvFetch(url){
-      return new Promise((resolve, reject) => {
+        function normalizeHeader(header) {
+            return String(header ?? '')
+                .replace(/^\uFEFF/, '')
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_+|_+$/g, '');
+        }
+
+        function csvFetch(url) {
+            return new Promise((resolve, reject) => {
                 Papa.parse(url, {
                     download: true,
                     header: true,
                     skipEmptyLines: true,
-                    complete: results => resolve(results.data),
+                    transformHeader: normalizeHeader,
+                    complete: results => {
+                        if (results.errors?.length) {
+                            console.warn('CSV parsing warnings:', url, results.errors);
+                        }
+                        resolve(results.data || []);
+                    },
                     error: err => reject(err)
                 });
-      });
-}
+            });
+        }
 
             function escapeHtml(value){
-      return String(value ?? '')
-            .replaceAll('&','&amp;')
-            .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-            .replaceAll('"','&quot;')
-            .replaceAll("'",'&#039;');
-}
+              return String(value ?? '')
+                    .replaceAll('&','&amp;')
+                    .replaceAll('<','&lt;')
+                .replaceAll('>','&gt;')
+                    .replaceAll('"','&quot;')
+                    .replaceAll("'",'&#039;');
+            }
 
             function setText(id, value){
                 document.getElementById(id).textContent = value ?? '';
-}
+            }
 
             function setMeter(id, value){
-      const safe = Math.max(0, Math.min(100, Number(value || 0)));
-            document.getElementById(id).style.width = safe + '%';
-}
+                  const safe = Math.max(0, Math.min(100, Number(value || 0)));
+                        document.getElementById(id).style.width = safe + '%';
+            }
 
             function num(value){
-      return Number(String(value ?? '').replace('%','').replaceAll(',',''));
-}
+                  return Number(String(value ?? '').replace('%','').replaceAll(',',''));
+            }
 
         function displayValue(row) {
 
@@ -740,39 +1096,139 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
         }
 
             function getNarrative(rows, key){
-      const row = rows.find(r => String(r.key || '').trim() === key);
-            return row ? row.value : '';
-}
+                  const row = rows.find(r => String(r.key || '').trim() === key);
+                        return row ? row.value : '';
+            }
 
-            function latestByMetric(rows){
-      const grouped = { };
+        function normalizeSnapshotDate(value) {
+            const text = String(value ?? '').trim();
+            if (!text) return '';
 
-      rows.forEach(r => {
-        const key = String(r.metric_key || '').trim();
-            if (!key) return;
+            // Already ISO or close to ISO.
+            const isoMatch = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+            if (isoMatch) {
+                const [, year, month, day] = isoMatch;
+                return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            }
 
-            if (!grouped[key]) grouped[key] = [];
-            grouped[key].push(r);
-      });
+            // Google Sheets sometimes exports dates as M/D/YYYY.
+            const usMatch = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+            if (usMatch) {
+                const [, month, day, year] = usMatch;
+                return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            }
 
-      Object.keys(grouped).forEach(key => {
-                grouped[key].sort((a, b) =>
-                    String(a.snapshot_date).localeCompare(String(b.snapshot_date))
-                );
-      });
+            const parsed = new Date(text);
+            if (!Number.isNaN(parsed.getTime())) {
+                const year = parsed.getFullYear();
+                const month = String(parsed.getMonth() + 1).padStart(2, '0');
+                const day = String(parsed.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            throw new Error(`Unrecognized snapshot date: "${text}"`);
+        }
+
+        function formatDashboardDate(value) {
+            const normalized = normalizeSnapshotDate(value);
+            if (!normalized) return 'date unavailable';
+
+            const [year, month, day] = normalized.split('-').map(Number);
+
+            return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function validateDuplicateMetricDates(rows) {
+            const seen = new Map();
+
+            rows.forEach((row, index) => {
+                const metricKey = String(row.metric_key || '').trim();
+                const snapshotDate = normalizeSnapshotDate(row.snapshot_date);
+                if (!metricKey || !snapshotDate) return;
+
+                const key = `${metricKey}|${snapshotDate}`;
+                const value = String(row.value ?? '').trim();
+
+                if (!seen.has(key)) {
+                    seen.set(key, { value, index });
+                    return;
+                }
+
+                const first = seen.get(key);
+
+                if (first.value !== value) {
+                    throw new Error(
+                        `Conflicting duplicate dashboard rows for ${metricKey} on ${snapshotDate}: ` +
+                        `"${first.value}" and "${value}". Remove one of the duplicate rows from Dashboard Values.`
+                    );
+                }
+            });
+        }
+
+        function latestByMetric(rows) {
+            const grouped = {};
+
+            rows.forEach((row, sourceIndex) => {
+                const key = String(row.metric_key || '').trim();
+                if (!key) return;
+
+                const normalizedRow = {
+                    ...row,
+                    snapshot_date: normalizeSnapshotDate(row.snapshot_date),
+                    _source_index: sourceIndex
+                };
+
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(normalizedRow);
+            });
+
+            Object.keys(grouped).forEach(key => {
+                grouped[key].sort((a, b) => {
+                    const dateCompare = a.snapshot_date.localeCompare(b.snapshot_date);
+                    if (dateCompare !== 0) return dateCompare;
+                    return a._source_index - b._source_index;
+                });
+            });
 
             return grouped;
-}
+        }
 
-            function getCurrentMetric(grouped, key){
-      const list = grouped[key] || [];
-            return list[list.length - 1] || { };
-}
+        function getCurrentMetric(grouped, key) {
+            const list = grouped[key] || [];
+            if (!list.length) return {};
 
-            function getPreviousMetric(grouped, key){
-      const list = grouped[key] || [];
-            return list[list.length - 2] || { };
-}
+            return list.reduce((latest, row) => {
+                if (!latest) return row;
+
+                const rowDate = normalizeSnapshotDate(row.snapshot_date);
+                const latestDate = normalizeSnapshotDate(latest.snapshot_date);
+
+                if (rowDate > latestDate) return row;
+                if (rowDate < latestDate) return latest;
+
+                return (row._source_index ?? 0) > (latest._source_index ?? 0)
+                    ? row
+                    : latest;
+            }, null) || {};
+        }
+
+        function getPreviousMetric(grouped, key) {
+            const list = [...(grouped[key] || [])];
+
+            list.sort((a, b) => {
+                const dateCompare = normalizeSnapshotDate(a.snapshot_date)
+                    .localeCompare(normalizeSnapshotDate(b.snapshot_date));
+
+                if (dateCompare !== 0) return dateCompare;
+                return (a._source_index ?? 0) - (b._source_index ?? 0);
+            });
+
+            return list[list.length - 2] || {};
+        }
 
         function calcChange(current, previous, unit) {
             const c = num(current);
@@ -789,38 +1245,257 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
         }
 
             function calcGap(current, goal, format){
-      const c = num(current);
-            const g = num(goal);
+              const c = num(current);
+                const g = num(goal);
+                if (isNaN(c) || isNaN(g)) return '--';
+    
+                const diff = c - g;
+                const sign = diff > 0 ? '+' : '';
+    
+                if (format === 'percent') return `${sign}${diff.toFixed(1)} pts`;
+                if (format === 'score') return `${sign}${diff.toFixed(1)}`;
+    
+                return `${sign}${diff.toLocaleString()}`;
+            }
 
-            if (isNaN(c) || isNaN(g)) return '--';
+        function optionalNumber(value) {
+            const cleaned = String(value ?? '').replace('%', '').replaceAll(',', '').trim();
+            if (cleaned === '') return null;
+            const parsed = Number(cleaned);
+            return Number.isFinite(parsed) ? parsed : null;
+        }
 
-            const diff = c - g;
-      const sign = diff > 0 ? '+' : '';
+        function cleanDictionaryRows(rows) {
+            const dictionary = {};
 
-            if (format === 'percent') return `${sign}${diff.toFixed(1)} pts`;
-            if (format === 'score') return `${sign}${diff.toFixed(1)}`;
+            rows.forEach(row => {
+                const metricKey = String(row.metric_key ?? '').trim();
+                if (!metricKey) return;
 
-            return `${sign}${diff.toLocaleString()}`;
-}
+                dictionary[metricKey] = {
+                    metric_key: metricKey,
+                    section: String(row.section ?? '').trim(),
+                    metric_label: String(row.metric_label ?? metricKey).trim(),
+                    unit: String(row.unit ?? '').trim().toLowerCase(),
+                    icon: String(row.icon ?? '').trim(),
+                    sort_order: optionalNumber(row.sort_order),
+                    show_on_dashboard: String(row.show_on_dashboard ?? 'Y').trim().toUpperCase(),
+                    goal: optionalNumber(row.goal),
+                    sub: String(row.sub ?? '').trim()
+                };
+            });
 
-            function renderTopScores(grouped){
-      const overall = getCurrentMetric(grouped, 'overall_health_score');
+            return dictionary;
+        }
+
+        function enrichRowsWithDictionary(rows, dictionary) {
+            return rows.map(row => {
+                const metricKey = String(row.metric_key ?? '').trim();
+                const definition = dictionary[metricKey] || {};
+
+                // Dictionary values intentionally override duplicate metadata in Dashboard_Export.
+                return {
+                    ...row,
+                    ...definition,
+                    metric_key: metricKey,
+                    snapshot_date: normalizeSnapshotDate(row.snapshot_date),
+                    value: row.value
+                };
+            });
+        }
+
+        function cleanRuleRows(rows) {
+            const cleaned = rows
+                .map(r => ({
+                    index_key: String(r.index_key ?? '').trim(),
+                    component_key: String(r.component_key ?? '').trim(),
+                    component_type: String(r.component_type ?? 'metric').trim().toLowerCase(),
+                    weight: optionalNumber(r.weight),
+                    direction: String(r.direction ?? 'higher').trim().toLowerCase(),
+                    scoring_method: String(r.scoring_method ?? 'target').trim().toLowerCase(),
+                    minimum: optionalNumber(r.minimum),
+                    maximum: optionalNumber(r.maximum),
+                    cap_at_100: String(r.cap_at_100 ?? 'Y').trim().toUpperCase() === 'Y',
+                    active: String(r.active ?? 'Y').trim().toUpperCase(),
+                    sort_order: optionalNumber(r.sort_order),
+                    notes: String(r.notes ?? '').trim()
+                }))
+                .filter(r => r.index_key && r.component_key)
+                .filter(r => r.active === 'Y')
+                .filter(r => Number.isFinite(r.weight) && r.weight > 0)
+                .sort((a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999));
+
+            console.table(cleaned);
+            return cleaned;
+        }
+
+        function getRowForDate(rows, metricKey, snapshotDate) {
+            const targetDate = normalizeSnapshotDate(snapshotDate);
+
+            // Metrics are not always updated on the same day. For an index snapshot,
+            // use the most recent available value on or before the snapshot date.
+            return rows
+                .map((row, sourceIndex) => ({
+                    ...row,
+                    snapshot_date: normalizeSnapshotDate(row.snapshot_date),
+                    _source_index: row._source_index ?? sourceIndex
+                }))
+                .filter(row =>
+                    String(row.metric_key || '').trim() === metricKey &&
+                    row.snapshot_date &&
+                    row.snapshot_date <= targetDate
+                )
+                .sort((a, b) => {
+                    const dateCompare = b.snapshot_date.localeCompare(a.snapshot_date);
+                    if (dateCompare !== 0) return dateCompare;
+                    return b._source_index - a._source_index;
+                })[0] || null;
+        }
+
+        function scoreComponent(value, rule, goal) {
+            const v = num(value);
+            if (!Number.isFinite(v)) return null;
+
+            let score;
+
+            if (rule.scoring_method === 'direct_score') {
+                score = v;
+            } else if (rule.scoring_method === 'linear') {
+                const min = Number.isFinite(rule.minimum) ? rule.minimum : 0;
+                const max = Number.isFinite(rule.maximum) ? rule.maximum : goal;
+
+                if (!Number.isFinite(max) || max === min) return null;
+
+                score = rule.direction === 'lower'
+                    ? ((max - v) / (max - min)) * 100
+                    : ((v - min) / (max - min)) * 100;
+            } else {
+                if (!Number.isFinite(goal)) return null;
+
+                if (rule.direction === 'lower') {
+                    if (v <= 0) score = 100;
+                    else score = (goal / v) * 100;
+                } else {
+                    if (goal === 0) score = v >= 0 ? 100 : 0;
+                    else score = (v / goal) * 100;
+                }
+            }
+
+            if (!Number.isFinite(score)) return null;
+            if (rule.cap_at_100) score = Math.min(100, score);
+            return Math.max(0, score);
+        }
+
+        function calculateIndexForDate(indexKey, snapshotDate, rawRows, rules, memo = {}, stack = []) {
+            const memoKey = `${snapshotDate}|${indexKey}`;
+            if (memoKey in memo) return memo[memoKey];
+            if (stack.includes(indexKey)) return null;
+
+            const indexRuleRows = rules.filter(r => r.index_key === indexKey);
+            if (!indexRuleRows.length) return null;
+
+            let weightedTotal = 0;
+            let weightTotal = 0;
+
+            indexRuleRows.forEach(rule => {
+                let componentScore = null;
+
+                if (rule.component_type === 'index') {
+                    componentScore = calculateIndexForDate(
+                        rule.component_key,
+                        snapshotDate,
+                        rawRows,
+                        rules,
+                        memo,
+                        [...stack, indexKey]
+                    );
+                } else {
+                    const row = getRowForDate(rawRows, rule.component_key, snapshotDate);
+                    if (row) componentScore = scoreComponent(row.value, rule, optionalNumber(row.goal));
+                }
+
+                if (componentScore === null || !Number.isFinite(rule.weight) || rule.weight <= 0) return;
+                weightedTotal += componentScore * rule.weight;
+                weightTotal += rule.weight;
+            });
+
+            memo[memoKey] = weightTotal ? weightedTotal / weightTotal : null;
+            return memo[memoKey];
+        }
+
+        function indexMetadata(key) {
+            const metadata = {
+                overall_health_score: {
+                    section: 'system', metric_label: 'Overall Organizational Health',
+                    unit: 'score', icon: 'fa-gauge-high', sort_order: 1,
+                    show_on_dashboard: 'Y', goal: 85,
+                    sub: 'Composite of mission, finance, and sustainability indicators.'
+                },
+                mission_index: {
+                    section: 'system', metric_label: 'Mission Impact Index',
+                    unit: 'score', icon: 'fa-bullseye', sort_order: 2,
+                    show_on_dashboard: 'Y', goal: 88,
+                    sub: 'Are we achieving what we exist to do?'
+                },
+                financial_index: {
+                    section: 'system', metric_label: 'Financial Strength Index',
+                    unit: 'score', icon: 'fa-chart-line', sort_order: 3,
+                    show_on_dashboard: 'Y', goal: 82,
+                    sub: 'Are we operating like a healthy organization?'
+                },
+                sustainability_index: {
+                    section: 'system', metric_label: 'Sustainability Index',
+                    unit: 'score', icon: 'fa-seedling', sort_order: 4,
+                    show_on_dashboard: 'Y', goal: 80,
+                    sub: 'Will we remain relevant and grow?'
+                }
+            };
+            return metadata[key] || {};
+        }
+
+        function buildCalculatedIndexRows(rawRows, rules, dictionary) {
+            const indexKeys = [...new Set(rules.map(r => r.index_key))];
+            const dates = [...new Set(rawRows.map(r => String(r.snapshot_date || '').trim()).filter(Boolean))].sort();
+            const calculated = [];
+
+            dates.forEach(snapshotDate => {
+                const memo = {};
+
+                indexKeys.forEach(indexKey => {
+                    const value = calculateIndexForDate(indexKey, snapshotDate, rawRows, rules, memo);
+                    if (value === null) return;
+
+                    calculated.push({
+                        snapshot_date: snapshotDate,
+                        metric_key: indexKey,
+                        value: Math.round(value),
+                        ...indexMetadata(indexKey),
+                        ...(dictionary[indexKey] || {}),
+                        unit: 'score'
+                    });
+                });
+            });
+
+            return calculated;
+        }
+
+        function renderTopScores(grouped){
+            const overall = getCurrentMetric(grouped, 'overall_health_score');
             const mission = getCurrentMetric(grouped, 'mission_index');
             const financial = getCurrentMetric(grouped, 'financial_index');
             const sustainability = getCurrentMetric(grouped, 'sustainability_index');
 
-                setText('overallScore', displayValue(overall));
-                setText('missionIndex', displayValue(mission));
-                setText('financialIndex', displayValue(financial));
-                setText('sustainabilityIndex', displayValue(sustainability));
-
+            setText('overallScore', displayValue(overall));
+            setText('missionIndex', displayValue(mission));
+            setText('financialIndex', displayValue(financial));
+            setText('sustainabilityIndex', displayValue(sustainability));
+            
             setMeter('overallMeter', overall.value);
             setMeter('missionMeter', mission.value);
             setMeter('financialMeter', financial.value);
             setMeter('sustainabilityMeter', sustainability.value);
-
-           
-}
+              
+        }
 
         function getKpiRows(rows, section) {
             const latestRowsByMetric = {};
@@ -859,51 +1534,54 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
                     const goalDisplay = displayGoal(current);
 
                     return `
-          <div class="kpi-row kpi-row-expanded">
-            <div class="kpi-icon">
-              <i class="fa-solid ${escapeHtml(k.icon || 'fa-circle-info')}"></i>
-            </div>
-
-            <div class="kpi-body">
-              <div class="kpi-title">${escapeHtml(k.metric_label || '')}</div>
-              <div class="kpi-sub">${escapeHtml(k.sub || '')}</div>
-
-              <div class="kpi-compare">
-                <div>
-                  <div class="compare-label">Previous</div>
-                  <div class="compare-value">${escapeHtml(previousDisplay)}</div>
-                </div>
-                <div>
-                  <div class="compare-label">Goal</div>
-                  <div class="compare-value">${escapeHtml(goalDisplay)}</div>
-                </div>
-                <div>
-                    <div class="compare-label">Change</div>
-                    <div class="compare-value">
-                    ${escapeHtml(calcChange(current.value, previous.value, current.unit))}
-                    </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="kpi-value">${escapeHtml(currentDisplay)}</div>
-          </div>
-        `;
-                }).join('');
-}
+                      <div class="kpi-row kpi-row-expanded">
+                        <div class="kpi-icon">
+                          <i class="fa-solid ${escapeHtml(k.icon || 'fa-circle-info')}"></i>
+                        </div>
+            
+                        <div class="kpi-body">
+                          <div class="kpi-title">${escapeHtml(k.metric_label || '')}</div>
+                          <div class="kpi-sub">${escapeHtml(k.sub || '')}</div>
+            
+                          <div class="kpi-compare">
+                            <div>
+                              <div class="compare-label">Previous</div>
+                              <div class="compare-value">${escapeHtml(previousDisplay)}</div>
+                            </div>
+                            <div>
+                              <div class="compare-label">Goal</div>
+                              <div class="compare-value">${escapeHtml(goalDisplay)}</div>
+                            </div>
+                            <div>
+                                <div class="compare-label">Change</div>
+                                <div class="compare-value">
+                                ${escapeHtml(calcChange(current.value, previous.value, current.unit))}
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+            
+                        <div class="kpi-value-wrap">
+                          <div class="kpi-value">${escapeHtml(currentDisplay)}</div>
+                          <div class="kpi-asof">As of ${escapeHtml(formatDashboardDate(current.snapshot_date))}</div>
+                        </div>
+                      </div>
+                    `;
+                            }).join('');
+            }
 
             function renderSections(rows, grouped){
                 renderKpis('missionKpis', getKpiRows(rows, 'mission'), grouped);
-            renderKpis('financialKpis', getKpiRows(rows, 'financial'), grouped);
-            renderKpis('sustainabilityKpis', getKpiRows(rows, 'sustainability'), grouped);
-}
+                renderKpis('financialKpis', getKpiRows(rows, 'financial'), grouped);
+                renderKpis('sustainabilityKpis', getKpiRows(rows, 'sustainability'), grouped);
+            }
 
             function renderNarrative(rows){
                 setText('boardStory', getNarrative(rows, 'board_story'));
-            setText('missionCallout', getNarrative(rows, 'mission_callout'));
-            setText('financialCallout', getNarrative(rows, 'financial_callout'));
-            setText('sustainabilityCallout', getNarrative(rows, 'sustainability_callout'));
-}
+                setText('missionCallout', getNarrative(rows, 'mission_callout'));
+                setText('financialCallout', getNarrative(rows, 'financial_callout'));
+                setText('sustainabilityCallout', getNarrative(rows, 'sustainability_callout'));
+            }
 
             function renderTrend(rows){
               const scoreKeys = [
@@ -921,28 +1599,28 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
                     )].sort();
 
                     function series(key){
-                return dates.map(d => {
-                  const row = rows.find(r => r.snapshot_date === d && r.metric_key === key);
-                    return row ? num(row.value) : null;
-                });
-              }
+                        return dates.map(d => {
+                          const row = rows.find(r => r.snapshot_date === d && r.metric_key === key);
+                            return row ? num(row.value) : null;
+                        });
+                      }
 
                     new Chart(document.getElementById('trendChart'), {
                         type:'line',
-                    data:{
-                        labels:dates,
-                    datasets:[
-                    {label:'Overall', data:series('overall_health_score'), tension:.25 },
-                    {label:'Mission', data:series('mission_index'), tension:.25 },
-                    {label:'Financial', data:series('financial_index'), tension:.25 },
-                    {label:'Sustainability', data:series('sustainability_index'), tension:.25 }
-                    ]
-                },
-                    options:{
-                        responsive:true,
-                    plugins:{legend:{position:'bottom' } },
-                    scales:{y:{min:0, max:100 } }
-                }
+                        data:{
+                            labels:dates,
+                        datasets:[
+                        {label:'Overall', data:series('overall_health_score'), tension:.25 },
+                        {label:'Mission', data:series('mission_index'), tension:.25 },
+                        {label:'Financial', data:series('financial_index'), tension:.25 },
+                        {label:'Sustainability', data:series('sustainability_index'), tension:.25 }
+                        ]
+                    },
+                        options:{
+                            responsive:true,
+                        plugins:{legend:{position:'bottom' } },
+                        scales:{y:{min:0, max:100 } }
+                    }
               });
             }
         function destroyDetailCharts() {
@@ -954,22 +1632,26 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
             const configs = {
                 system: {
                     title: 'Overall Organizational Health Detail',
-                    sub: 'Trend lines for the major index scores.',
+                    sub: 'How the score is calculated, followed by trend lines.',
+                    indexKey: 'overall_health_score',
                     keys: ['overall_health_score', 'mission_index', 'financial_index', 'sustainability_index']
                 },
                 mission: {
                     title: 'Mission Impact Detail',
-                    sub: 'Trend lines for supporting mission metrics.',
+                    sub: 'How the score is calculated, followed by supporting metric trends.',
+                    indexKey: 'mission_index',
                     keys: ['students_impacted', 'population_reached', 'schools_reached']
                 },
                 financial: {
                     title: 'Financial Strength Detail',
-                    sub: 'Trend lines for supporting financial metrics.',
+                    sub: 'How the score is calculated, followed by supporting metric trends.',
+                    indexKey: 'financial_index',
                     keys: ['earned_revenue_ratio', 'program_spending', 'revenue_diversity']
                 },
                 sustainability: {
                     title: 'Sustainability Detail',
-                    sub: 'Trend lines for supporting sustainability metrics.',
+                    sub: 'How the score is calculated, followed by supporting metric trends.',
+                    indexKey: 'sustainability_index',
                     keys: ['non_local_participation', 'outreach_participation', 'strategic_partnerships']
                 }
             };
@@ -1002,6 +1684,130 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
             }
         }
 
+        function ruleTargetDisplay(rule, componentRow) {
+            if (rule.component_type === 'index') return '--';
+            const unit = componentRow?.unit || '';
+            return displayGoal({ goal: componentRow?.goal, unit });
+        }
+
+        function renderIndexCalculation(indexKey) {
+            const container = document.getElementById('indexCalculationBreakdown');
+            const rules = indexRules.filter(r => r.index_key === indexKey);
+            const indexRow = getCurrentMetric(dashboardGrouped, indexKey);
+
+            if (!rules.length || !indexRow.snapshot_date) {
+                container.innerHTML = '<div class="callout">No active calculation rules were found for this index.</div>';
+                return;
+            }
+
+            const parts = rules.map(rule => {
+                const componentRow = getCurrentMetric(dashboardGrouped, rule.component_key);
+                const componentScore = rule.component_type === 'index'
+                    ? num(componentRow.value)
+                    : scoreComponent(componentRow.value, rule, optionalNumber(componentRow.goal));
+
+                return { rule, componentRow, componentScore };
+            }).filter(x => Number.isFinite(x.componentScore) && Number.isFinite(x.rule.weight) && x.rule.weight > 0);
+
+            const weightTotal = parts.reduce((sum, x) => sum + x.rule.weight, 0);
+
+            function mathNumber(value) {
+                const number = num(value);
+                if (!Number.isFinite(number)) return '--';
+
+                return Number.isInteger(number)
+                    ? number.toLocaleString()
+                    : number.toLocaleString(undefined, { maximumFractionDigits: 2 });
+            }
+
+            function componentFormula(rule, componentRow, componentScore) {
+                const currentNumber = mathNumber(componentRow.value);
+                const goalNumber = mathNumber(componentRow.goal);
+                const scoreNumber = componentScore.toFixed(1);
+
+                if (rule.component_type === 'index' || rule.scoring_method === 'direct_score') {
+                    return `Uses the index score directly = <strong>${scoreNumber}</strong>`;
+                }
+
+                if (rule.scoring_method === 'linear') {
+                    const minimum = Number.isFinite(rule.minimum) ? mathNumber(rule.minimum) : '0';
+                    const maximumValue = Number.isFinite(rule.maximum)
+                        ? rule.maximum
+                        : componentRow.goal;
+                    const maximum = mathNumber(maximumValue);
+
+                    if (rule.direction === 'lower') {
+                        return `(${maximum} − ${currentNumber}) ÷ (${maximum} − ${minimum}) × 100 = <strong>${scoreNumber}</strong>`;
+                    }
+
+                    return `(${currentNumber} − ${minimum}) ÷ (${maximum} − ${minimum}) × 100 = <strong>${scoreNumber}</strong>`;
+                }
+
+                if (rule.direction === 'lower') {
+                    return `${goalNumber} ÷ ${currentNumber} × 100 = <strong>${scoreNumber}</strong>`;
+                }
+
+                return `${currentNumber} ÷ ${goalNumber} × 100 = <strong>${scoreNumber}</strong>`;
+            }
+
+            const cards = parts.map(({ rule, componentRow, componentScore }) => {
+                const normalizedWeight = weightTotal ? (rule.weight / weightTotal) * 100 : 0;
+                const contribution = componentScore * normalizedWeight / 100;
+                const label = componentRow.metric_label || rule.component_key;
+                const current = displayValue(componentRow);
+                const target = ruleTargetDisplay(rule, componentRow);
+                const method = rule.component_type === 'index'
+                    ? 'Calculated index score'
+                    : (rule.direction === 'lower' ? 'Lower is better' : 'Higher is better');
+
+                const scoreFormula = componentFormula(rule, componentRow, componentScore);
+                const contributionFormula =
+                    `${componentScore.toFixed(1)} × ${normalizedWeight.toFixed(0)}% = <strong>${contribution.toFixed(1)}</strong>`;
+
+                return `
+                    <div class="calculation-item">
+                        <div class="calculation-item-title">${escapeHtml(label)}</div>
+                        <div class="calculation-line">
+                            <span>Current</span>
+                            <strong>
+                                ${escapeHtml(current)}
+                                <div class="calculation-date">${escapeHtml(formatDashboardDate(componentRow.snapshot_date))}</div>
+                            </strong>
+                        </div>
+                        ${rule.component_type === 'index' ? '' : `<div class="calculation-line"><span>Goal</span><strong>${escapeHtml(target)}</strong></div>`}
+                        <div class="calculation-line"><span>Weight</span><strong>${normalizedWeight.toFixed(0)}%</strong></div>
+                        <div class="calculation-line"><span>Method</span><strong>${escapeHtml(method)}</strong></div>
+
+                        <div class="calculation-score">
+                            <span>Component score</span>
+                            <strong>${componentScore.toFixed(1)}</strong>
+                        </div>
+                        <div class="calculation-math">${scoreFormula}</div>
+
+                        <div class="calculation-contribution">
+                            <div class="calculation-line">
+                                <span>Weighted contribution</span>
+                                <strong>${contribution.toFixed(1)} pts</strong>
+                            </div>
+                            <div class="calculation-math">${contributionFormula}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="calculation-summary">
+                    <div>
+                        <div class="calculation-summary-label">Calculated from ${parts.length} weighted component${parts.length === 1 ? '' : 's'}</div>
+                        <strong>${escapeHtml(indexRow.metric_label || indexKey)}</strong>
+                    </div>
+                    <div class="calculation-summary-value">${escapeHtml(displayValue(indexRow))}</div>
+                </div>
+                <div class="calculation-grid">${cards}</div>
+                <div class="calculation-formula">Index = sum of each component score × its normalized weight. Goals come from Metric_Dictionary and the current goal is applied to every historical period. When component metrics have different update dates, the most recent value available on or before the index date is used. Component scores are capped at 100 when the rule says to cap them.</div>
+            `;
+        }
+
         function showIndexDetail(section) {
             const config = getDetailConfig(section);
             hideBoardBriefing();
@@ -1013,6 +1819,7 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
 
             document.getElementById('detailTitle').textContent = config.title;
             document.getElementById('detailSub').textContent = config.sub;
+            renderIndexCalculation(config.indexKey);
 
             grid.innerHTML = config.keys.map((key, i) => {
                 const rows = getMetricRows(key);
@@ -1072,6 +1879,7 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
         function hideIndexDetail() {
             destroyDetailCharts();
             document.getElementById('indexDetailCard').style.display = 'none';
+            document.getElementById('indexCalculationBreakdown').innerHTML = '';
 
             document.querySelectorAll('.score-card').forEach(card => {
                 card.classList.remove('active-index');
@@ -1105,15 +1913,15 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
             const rows = getVisibleBriefings().slice(0, 3);
 
             document.getElementById('briefingGrid').innerHTML = rows.map(r => `
-        <div class="briefing-item">
-            <div class="briefing-meta">
-                <span class="briefing-category">${briefingIcon(r.category)} ${escapeHtml(r.category || '')}</span>
-                <span>${escapeHtml(r.event_date || '')}</span>
-            </div>
-            <div class="briefing-title">${escapeHtml(r.title || '')}</div>
-            <div class="briefing-details">${escapeHtml(r.details || '')}</div>
-        </div>
-    `).join('');
+                <div class="briefing-item">
+                    <div class="briefing-meta">
+                        <span class="briefing-category">${briefingIcon(r.category)} ${escapeHtml(r.category || '')}</span>
+                        <span>${escapeHtml(r.event_date || '')}</span>
+                    </div>
+                    <div class="briefing-title">${escapeHtml(r.title || '')}</div>
+                    <div class="briefing-details">${escapeHtml(r.details || '')}</div>
+                </div>
+            `).join('');
         }
 
         function renderBriefingArchive() {
@@ -1121,16 +1929,16 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
                 .filter(r => r.event_date)
                 .sort((a, b) => String(b.event_date).localeCompare(String(a.event_date)));
 
-            document.getElementById('briefingArchive').innerHTML = rows.map(r => `
-        <div class="archive-row">
-            <div>${escapeHtml(r.event_date || '')}</div>
-            <div>${briefingIcon(r.category)} ${escapeHtml(r.category || '')}</div>
-            <div>
-                <strong>${escapeHtml(r.title || '')}</strong><br>
-                <span style="color:var(--muted);">${escapeHtml(r.details || '')}</span>
-            </div>
-        </div>
-    `).join('');
+                document.getElementById('briefingArchive').innerHTML = rows.map(r => `
+                    <div class="archive-row">
+                        <div>${escapeHtml(r.event_date || '')}</div>
+                        <div>${briefingIcon(r.category)} ${escapeHtml(r.category || '')}</div>
+                        <div>
+                            <strong>${escapeHtml(r.title || '')}</strong><br>
+                            <span style="color:var(--muted);">${escapeHtml(r.details || '')}</span>
+                        </div>
+                    </div>
+                `).join('');
         }
 
         function toggleBoardBriefing() {
@@ -1162,30 +1970,184 @@ const BOARD_BRIEFING_CSV_URL = './data/board_briefing.csv';
         }
 
 
+
+        function openHelpDrawer(){
+            renderHelpDrawer();
+            document.getElementById('helpDrawer').classList.add('open');
+            document.getElementById('helpDrawerBackdrop').classList.add('open');
+            document.getElementById('helpDrawer').setAttribute('aria-hidden','false');
+            document.body.style.overflow='hidden';
+        }
+        function closeHelpDrawer(){
+            document.getElementById('helpDrawer').classList.remove('open');
+            document.getElementById('helpDrawerBackdrop').classList.remove('open');
+            document.getElementById('helpDrawer').setAttribute('aria-hidden','true');
+            document.body.style.overflow='';
+        }
+        function toggleHelpDrawer(){
+            document.getElementById('helpDrawer').classList.contains('open') ? closeHelpDrawer() : openHelpDrawer();
+        }
+        function helpIndexLabel(key){
+            return {
+                mission_index:'Mission Impact',
+                financial_index:'Financial Strength',
+                sustainability_index:'Sustainability',
+                overall_health_score:'Overall Organizational Health'
+            }[key] || key;
+        }
+        function renderHelpLiveCalculation(){
+            const container=document.getElementById('helpLiveCalculation');
+            const rules=indexRules.filter(r=>r.index_key==='mission_index');
+            const mission=getCurrentMetric(dashboardGrouped,'mission_index');
+            if(!rules.length || !mission.snapshot_date){
+                container.innerHTML='<div class="callout">Live calculation is not available.</div>';
+                return;
+            }
+            const total=rules.reduce((s,r)=>s+(Number(r.weight)||0),0);
+            container.innerHTML=rules.map(rule=>{
+                const row=getCurrentMetric(dashboardGrouped,rule.component_key);
+                const score=rule.component_type==='index'
+                    ? num(row.value)
+                    : scoreComponent(row.value,rule,optionalNumber(row.goal));
+                const weight=total ? rule.weight/total*100 : 0;
+                const contribution=Number.isFinite(score) ? score*weight/100 : null;
+                return `
+                    <div class="help-live-row">
+                        <div class="help-live-title">${escapeHtml(row.metric_label||rule.component_key)}</div>
+                        <div class="help-live-values">
+                            <div><div class="help-live-label">Current</div><div class="help-live-value">${escapeHtml(displayValue(row))}</div></div>
+                            <div><div class="help-live-label">Goal</div><div class="help-live-value">${escapeHtml(displayGoal(row))}</div></div>
+                            <div><div class="help-live-label">Score</div><div class="help-live-value">${Number.isFinite(score)?score.toFixed(1):'--'}</div></div>
+                            <div><div class="help-live-label">Contribution</div><div class="help-live-value">${Number.isFinite(contribution)?contribution.toFixed(1):'--'}</div></div>
+                        </div>
+                    </div>`;
+            }).join('') + `
+                <div class="calculation-summary" style="margin:10px 0 0">
+                    <div><div class="calculation-summary-label">Weighted Mission Impact score</div><strong>Mission Impact Index</strong></div>
+                    <div class="calculation-summary-value">${escapeHtml(displayValue(mission))}</div>
+                </div>`;
+        }
+        function renderHelpCurrentRules(){
+            const order=['mission_index','financial_index','sustainability_index','overall_health_score'];
+            document.getElementById('helpCurrentRules').innerHTML=order.map(indexKey=>{
+                const rules=indexRules.filter(r=>r.index_key===indexKey);
+                if(!rules.length) return '';
+                const total=rules.reduce((s,r)=>s+(Number(r.weight)||0),0);
+                return `<div class="help-rule-group">
+                    <div class="help-rule-title">${escapeHtml(helpIndexLabel(indexKey))}</div>
+                    ${rules.map(rule=>{
+                        const row=getCurrentMetric(dashboardGrouped,rule.component_key);
+                        const weight=total?rule.weight/total*100:0;
+                        return `<div class="help-rule-item"><span>✓ ${escapeHtml(row.metric_label||rule.component_key)}</span><strong>${weight.toFixed(0)}%</strong></div>`;
+                    }).join('')}
+                </div>`;
+            }).join('');
+        }
+        function renderHelpCurrentGoals(){
+            const keys=[...new Set(indexRules.filter(r=>r.component_type!=='index').map(r=>r.component_key))];
+            document.getElementById('helpCurrentGoals').innerHTML=keys.map(key=>{
+                const row=getCurrentMetric(dashboardGrouped,key);
+                return `<div class="help-goal-item"><div class="help-goal-name">${escapeHtml(row.metric_label||key)}</div><div class="help-goal-value">${escapeHtml(displayGoal(row))}</div></div>`;
+            }).join('');
+        }
+        function renderHelpDeveloperInfo(){
+            const dates=new Set(dashboardRows.map(r=>String(r.snapshot_date||'').trim()).filter(Boolean));
+            const items=[
+                ['Metric definitions',Object.keys(metricDictionary).length],
+                ['Dashboard rows',dashboardRows.length],
+                ['Snapshot dates',dates.size],
+                ['Active index rules',indexRules.length],
+                ['Board briefings',briefingRows.length],
+                ['Calculation location','Browser']
+            ];
+            document.getElementById('helpDeveloperInfo').innerHTML=items.map(([label,value])=>
+                `<div class="help-dev-item"><div class="help-dev-label">${escapeHtml(label)}</div><div class="help-dev-value">${escapeHtml(value)}</div></div>`
+            ).join('');
+        }
+        function renderHelpDrawer(){
+            renderHelpLiveCalculation();
+            renderHelpCurrentRules();
+            renderHelpCurrentGoals();
+            renderHelpDeveloperInfo();
+        }
+        document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelpDrawer();});
+
         Promise.all([
             csvFetch(DATA_CSV_URL),
             csvFetch(NARRATIVE_CSV_URL),
-            csvFetch(BOARD_BRIEFING_CSV_URL)
+            csvFetch(BOARD_BRIEFING_CSV_URL),
+            csvFetch(INDEX_RULES_CSV_URL),
+            csvFetch(METRIC_DICTIONARY_CSV_URL)
         ])
-            .then(([dataRows, narrativeRows, boardBriefingRows]) => {
-                const grouped = latestByMetric(dataRows);
+            .then(([dataRows, narrativeRows, boardBriefingRows, ruleRows, dictionaryRows]) => {
+                indexRules = cleanRuleRows(ruleRows);
+                metricDictionary = cleanDictionaryRows(dictionaryRows);
 
-                dashboardRows = dataRows;
+                if (!indexRules.length) {
+                    throw new Error(
+                        'The Index Rules sheet loaded, but no active rules were recognized. ' +
+                        'Expected columns: index_key, component_key, component_type, weight, direction, ' +
+                        'scoring_method, minimum, maximum, cap_at_100, active, sort_order, notes.'
+                    );
+                }
+
+                if (!Object.keys(metricDictionary).length) {
+                    throw new Error(
+                        'Metric_Dictionary loaded, but no metric_key rows were recognized.'
+                    );
+                }
+
+                const enrichedDataRows = enrichRowsWithDictionary(dataRows, metricDictionary);
+                const calculatedKeys = new Set(indexRules.map(r => r.index_key));
+                const rawRows = enrichedDataRows.filter(
+                    r => !calculatedKeys.has(String(r.metric_key || '').trim())
+                );
+
+                validateDuplicateMetricDates(rawRows);
+
+                const calculatedRows = buildCalculatedIndexRows(rawRows, indexRules, metricDictionary);
+                const combinedRows = [...rawRows, ...calculatedRows];
+                const grouped = latestByMetric(combinedRows);
+
+                dashboardRows = combinedRows;
                 dashboardGrouped = grouped;
                 briefingRows = boardBriefingRows;
+
+                window.dashboardScoreAudit = {
+                    overall: getCurrentMetric(grouped, 'overall_health_score'),
+                    mission: getCurrentMetric(grouped, 'mission_index'),
+                    financial: getCurrentMetric(grouped, 'financial_index'),
+                    sustainability: getCurrentMetric(grouped, 'sustainability_index')
+                };
+
+                console.table(
+                    Object.entries(window.dashboardScoreAudit).map(([name, row]) => ({
+                        score: name,
+                        snapshot_date: row.snapshot_date || '',
+                        value: row.value ?? ''
+                    }))
+                );
 
                 setText('lastUpdated', 'Updated: ' + new Date().toLocaleDateString());
 
                 renderTopScores(grouped);
-                renderSections(dataRows, grouped);
+                renderSections(combinedRows, grouped);
                 renderNarrative(narrativeRows);
-                renderTrend(dataRows);
+                renderTrend(combinedRows);
                 renderBriefingSummary();
 
             })
             .catch(err => {
                 console.error(err);
                 setText('lastUpdated', 'Data failed to load');
+
+                const detail = document.getElementById('indexCalculationBreakdown');
+                if (detail) {
+                    detail.innerHTML = `<div class="callout"><strong>Dashboard data error:</strong> ${escapeHtml(err.message || err)}</div>`;
+                }
+
+                ['overallScore', 'missionIndex', 'financialIndex', 'sustainabilityIndex']
+                    .forEach(id => setText(id, '--'));
             });
     </script>
 
