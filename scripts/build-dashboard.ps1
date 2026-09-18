@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $PSScriptRoot
 
-$excelFile = Join-Path $root "source\NDGTS Dashboard Summer 2026.xlsx"
+$excelFile = Join-Path $root "source\NDGTS_Dashboard_Excel_Master.xlsx"
 $outputFile = Join-Path $root "data\dashboard.csv"
 
 Import-Module ImportExcel
