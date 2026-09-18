@@ -9,6 +9,8 @@ $dataFolder = Join-Path $root "data"
 $dashboardFile = Join-Path $dataFolder "dashboard.csv"
 $narrativeFile = Join-Path $dataFolder "narrative.csv"
 $briefingFile  = Join-Path $dataFolder "board_briefing.csv"
+$indexRulesFile = Join-Path $dataFolder "index_rules.csv"
+$metricDictionaryFile = Join-Path $dataFolder "metric_dictionary.csv"
 
 Write-Host ""
 Write-Host "========================================="
@@ -106,6 +108,54 @@ Write-Host "  Rows: $($briefingRows.Count)"
 Write-Host "  Created: data/board_briefing.csv"
 Write-Host ""
 
+# ---------------------------------------------------------
+# INDEX RULES
+# ---------------------------------------------------------
+
+Write-Host "Reading Metric_Calculation_Values..."
+
+$indexRows = Import-Excel `
+    -Path $excelFile `
+    -WorksheetName "Metric_Calculation_Values"
+
+if (-not $indexRows) {
+    throw "No rows found in Metric_Calculation_Values."
+}
+
+$indexRows |
+    Export-Csv `
+        -Path $indexRulesFile `
+        -NoTypeInformation `
+        -Encoding UTF8
+
+Write-Host "  Rows: $($indexRows.Count)"
+Write-Host "  Created: data/index_rules.csv"
+Write-Host ""
+
+
+# ---------------------------------------------------------
+# METRIC DICTIONARY
+# ---------------------------------------------------------
+
+Write-Host "Reading Metric_Dictionary..."
+
+$dictionaryRows = Import-Excel `
+    -Path $excelFile `
+    -WorksheetName "Metric_Dictionary"
+
+if (-not $dictionaryRows) {
+    throw "No rows found in Metric_Dictionary."
+}
+
+$dictionaryRows |
+    Export-Csv `
+        -Path $metricDictionaryFile `
+        -NoTypeInformation `
+        -Encoding UTF8
+
+Write-Host "  Rows: $($dictionaryRows.Count)"
+Write-Host "  Created: data/metric_dictionary.csv"
+Write-Host ""
 
 # ---------------------------------------------------------
 # DONE
