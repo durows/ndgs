@@ -1,0 +1,14 @@
+metric_key,section,metric_label,unit,icon,sort_order,show_on_dashboard,goal,sub
+overall_health_score,system,Overall Organizational Health,score,fa-gauge-high,1,Y,85,"Composite of mission, finance, and sustainability indicators."
+mission_index,system,Mission Impact Index,score,fa-bullseye,2,Y,88,Are we achieving what we exist to do?
+financial_index,system,Financial Strength Index,score,fa-chart-line,3,Y,82,Are we operating like a healthy organization?
+sustainability_index,system,Sustainability Index,score,fa-seedling,4,Y,80,Will we remain relevant and grow?
+students_impacted,mission,Households Reached,percent,fa-user-graduate,1,Y,31,Percent of regional students served.
+population_reached,mission,Population Reached,number,fa-people-group,2,Y,101000,Annual engagements.
+schools_reached,mission,Schools Reached,percent,fa-school,3,Y,50,Percent of North Dakota schools served.
+earned_revenue_ratio,financial,Earned Revenue Ratio,percent,fa-hand-holding-dollar,1,Y,70,Earned revenue share.
+program_spending,financial,Program Spending,percent,fa-bullseye,2,Y,85,Percent of expenses directed to programs.
+revenue_diversity,financial,Revenue Diversity,number,fa-chart-pie,3,Y,15,Number of meaningful revenue streams.
+non_local_participation,sustainability,Non-Local Participation,percent,fa-map,1,Y,65,Participation from outside the local market.
+outreach_participation,sustainability,Outreach Participation,percent,fa-truck,2,Y,18,Offsite and outreach engagement share.
+strategic_partnerships,sustainability,Strategic Partnerships,number,fa-handshake,3,Y,12,Active or emerging strategic partnerships.
