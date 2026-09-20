@@ -1,0 +1,34 @@
+﻿area,source_metric,source_purpose,metric_key,aggregation,active
+Ops,Overdue A/R (30 Days),We're managing our cashflow and receivables.,,latest,Y
+Ops,Facility Events,Our facility events are supporting our mission. (1mo),,latest,Y
+Ops,Event Participation,Our facility is welcoming community members beyond the gallery.,,latest,Y
+Ops,Birthday Parties,Our facility is welcoming community members to event spaces.,,latest,Y
+Ops,Teamwork Overdue - Fac/Eve/Ops,We're completing projects and tasks as scoped and on time.,,latest,Y
+Education,Onsite Programming,"We're growing onsite programming (Last 30 days, compared to last year.)",,latest,Y
+Education,Onsite Participants,We're continually providing events (Last 30 days),,latest,Y
+Education,Onsite Programming,We're inviting the public outside of gallery visits and rental events (1 month rolling),,latest,Y
+Education,Teamwork - Gallery,We're staying on top of tasks (Gallery),,latest,Y
+Education,Teamwork - Education,We're staying on top of tasks (Education),,latest,Y
+Education,Onsite Camps/Clubs,We are filling onsite camps and clubs to capacity,,latest,Y
+Education,Offsite Participants,"We're growing offsite programming (Last 30 days, compared to last year.)",,latest,Y
+Education,Offsite Participants,We're growing our offsite programming reach (Last 30 days),,latest,Y
+Education,Community Partners,Community partnerships in programming (1 month rolling),,latest,Y
+Education,Offsite Events,We are pusuring new and less visited offsite program partners,,latest,Y
+Public Engagement,Community Memberships,We're growing community memberships.,,latest,Y
+Public Engagement,New/Renewed Memberships,We are attracting new members.,,latest,Y
+Public Engagement,Renewal Rate - Last 90 Days,Our members find value in continued membership.,,latest,Y
+Public Engagement,Gallery Visitors,Our gallery is a place the community frequents.,,latest,Y
+Public Engagement,Field Trips/Group Visitors,Our gallery is attracting schools and groups.,,latest,Y
+Public Engagement,Gift Shop Sales,Our gift shop offers the visitors a piece of NDGTS,,latest,Y
+Public Engagement,Teamwork,We're following through on priorities.,,latest,Y
+Public Engagement,"""Gateway to Science"" Search",Our mission is known in the community.,,latest,Y
+Public Engagement,Site Health,An important marketing tool is working.,,latest,Y
+Public Engagement,Monthly Visitors (1m trailing),"Our site is useful, compelling, and engaging to visitors.",,latest,Y
+Public Engagement,Monthly Pageviews (1m trailing),"Our site is useful, compelling, and engaging to visitors.",,latest,Y
+Public Engagement,News Article Posts (Last 30 Days),What we share is reaching audiences.,,latest,Y
+Public Engagement,Average Engagement Time,"Our site is useful, compelling, and engaging to visitors.",,latest,Y
+Public Engagement,Lawyerist Page Engagement,Users are engaging with products through product pages.,,latest,Y
+Public Engagement,Instagram Impressions/Reach,Our Instagram is relevant and useful.,,latest,Y
+Public Engagement,Facebook Post Views,Our Facebook is relevant and useful.,,latest,Y
+Public Engagement,Email Subscribers,Our email list is healthy and growing.,,latest,Y
+Public Engagement,Email open rate (excluding donor),Our emails have content people engage with.,,latest,Y
