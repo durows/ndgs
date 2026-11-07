@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Carl Ben Eielson Chronic Absence Trends</title>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    <style>
+        body {
+            font-family: Segoe UI, Arial, sans-serif;
+            margin: 20px;
+            background: #f5f7fa;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        #container {
+            height: 700px;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.1);
+        }
+    </style>
+</head>
+<body>
+
+<h1>Carl Ben Eielson Chronic Absence Trends</h1>
+
+<div id="container"></div>
+
+<script>
+
+const months = [
+    'Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May'
+];
+
+Highcharts.chart('container', {
+
+    chart: {
+        type: 'line',
+        zoomType: 'xy'
+    },
+
+    title: {
+        text: 'Chronic Absence Rate by School Year'
+    },
+
+    subtitle: {
+        text: 'Percentage of students missing at least 10% of possible school days'
+    },
+
+    xAxis: {
+        categories: months
+    },
+
+    yAxis: {
+        title: {
+            text: 'Chronic Absence (%)'
+        }
+    },
+
+    tooltip: {
+        shared: true,
+        valueSuffix: '%'
+    },
+
+    legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
+    },
+
+    series: [{
+        name: '2017',
+        data: [11.66,11.19,10.99,11.87,12.55,13.41,12.94,12.97,13.57]
+    },{
+        name: '2018',
+        data: [12.69,11.20,10.08,12.13,11.97,11.98,11.23,10.81,12.12]
+    },{
+        name: '2019',
+        data: [10.08,10.71,10.68,10.76,11.88,12.32,11.98,13.34,13.08]
+    },{
+        name: '2020',
+        data: [12.84,13.04,12.15,14.12,14.77,16.22,15.68,11.42,9.63]
+    },{
+        name: '2021',
+        data: [17.44,24.68,25.78,23.15,21.62,23.09,24.52,26.48,26.58]
+    },{
+        name: '2022',
+        data: [25.28,25.08,28.08,32.60,34.68,34.62,34.41,35.52,35.06]
+    },{
+        name: '2024',
+        data: [17.73,22.28,25.29,27.32,26.45,27.20,27.04,27.78,27.69]
+    },{
+        name: '2025',
+        data: [25.08,27.49,31.23,31.89,33.53,35.19,36.11,35.32,35.76],
+        lineWidth: 4
+    },{
+        name: '2026',
+        data: [23.57,23.04,25.22,31.32,31.63,32.22,33.82,34.06,34.64],
+        lineWidth: 4
+    },{
+        name: '2027 (Current)',
+        data: [22.49,21.79,23.09,null,null,null,null,null,null],
+        dashStyle: 'ShortDash',
+        lineWidth: 5,
+        marker: {
+            radius: 6
+        }
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 900
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
+    }
+
+});
+</script>
+
+</body>
+</html>
